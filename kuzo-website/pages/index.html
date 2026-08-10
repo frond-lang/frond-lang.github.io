@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuzo — A Statically Typed Language</title>
+    <style id="theme-vars">
+/* ============================================================
+   Kuzo Language — Professional Dark Theme
+   Warm amber accent inspired by the ammonite fossil logo
+   ============================================================ */
+
+:root {
+  /* --- Brand Primary (refined amber/gold from fossil) --- */
+  --kuzo-primary: #D4A843;
+  --kuzo-primary-foreground: #0E0F13;
+
+  /* --- Backgrounds --- */
+  --kuzo-background: #0E0F13;
+  --kuzo-foreground: #E6E7EA;
+
+  /* --- Surfaces --- */
+  --kuzo-card: #16181F;
+  --kuzo-card-foreground: #E6E7EA;
+  --kuzo-popover: #1A1C24;
+  --kuzo-popover-foreground: #E6E7EA;
+  --kuzo-muted: #1C1E26;
+  --kuzo-muted-foreground: #9B9DA6;
+
+  /* --- Borders & Inputs --- */
+  --kuzo-border: #262830;
+  --kuzo-input: #262830;
+  --kuzo-ring: #D4A843;
+
+  /* --- Radius Scale --- */
+  --kuzo-radius-sm: 4px;
+  --kuzo-radius-md: 8px;
+  --kuzo-radius-lg: 16px;
+
+  /* --- Typography --- */
+  --kuzo-font-sans: "Inter", "Noto Sans SC", "PingFang SC", system-ui, -apple-system, sans-serif;
+  --kuzo-font-mono: "JetBrains Mono", "Fira Code", "SF Mono", "Cascadia Code", monospace;
+}
+
+html.dark {
+  --kuzo-background: #0E0F13;
+  --kuzo-foreground: #E6E7EA;
+  --kuzo-card: #16181F;
+  --kuzo-card-foreground: #E6E7EA;
+  --kuzo-popover: #1A1C24;
+  --kuzo-popover-foreground: #E6E7EA;
+  --kuzo-muted: #1C1E26;
+  --kuzo-muted-foreground: #9B9DA6;
+  --kuzo-border: #262830;
+  --kuzo-input: #262830;
+  --kuzo-primary: #D4A843;
+  --kuzo-primary-foreground: #0E0F13;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kuzo-background);
+    --color-foreground: var(--kuzo-foreground);
+    --color-card: var(--kuzo-card);
+    --color-card-foreground: var(--kuzo-card-foreground);
+    --color-popover: var(--kuzo-popover);
+    --color-popover-foreground: var(--kuzo-popover-foreground);
+    --color-primary: var(--kuzo-primary);
+    --color-primary-foreground: var(--kuzo-primary-foreground);
+    --color-muted: var(--kuzo-muted);
+    --color-muted-foreground: var(--kuzo-muted-foreground);
+    --color-border: var(--kuzo-border);
+    --color-input: var(--kuzo-input);
+    --color-ring: var(--kuzo-ring);
+    --radius-sm: var(--kuzo-radius-sm);
+    --radius-md: var(--kuzo-radius-md);
+    --radius-lg: var(--kuzo-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kuzo-background); color: var(--kuzo-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kuzo-background); }
+      .text-background { color: var(--kuzo-background); }
+      .border-background { border-color: var(--kuzo-background); }
+      .ring-background { --tw-ring-color: var(--kuzo-background); }
+      .bg-foreground { background-color: var(--kuzo-foreground); }
+      .text-foreground { color: var(--kuzo-foreground); }
+      .border-foreground { border-color: var(--kuzo-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kuzo-foreground); }
+      .bg-card { background-color: var(--kuzo-card); }
+      .text-card { color: var(--kuzo-card); }
+      .border-card { border-color: var(--kuzo-card); }
+      .ring-card { --tw-ring-color: var(--kuzo-card); }
+      .bg-card-foreground { background-color: var(--kuzo-card-foreground); }
+      .text-card-foreground { color: var(--kuzo-card-foreground); }
+      .border-card-foreground { border-color: var(--kuzo-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kuzo-card-foreground); }
+      .bg-popover { background-color: var(--kuzo-popover); }
+      .text-popover { color: var(--kuzo-popover); }
+      .border-popover { border-color: var(--kuzo-popover); }
+      .ring-popover { --tw-ring-color: var(--kuzo-popover); }
+      .bg-popover-foreground { background-color: var(--kuzo-popover-foreground); }
+      .text-popover-foreground { color: var(--kuzo-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kuzo-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kuzo-popover-foreground); }
+      .bg-primary { background-color: var(--kuzo-primary); }
+      .text-primary { color: var(--kuzo-primary); }
+      .border-primary { border-color: var(--kuzo-primary); }
+      .ring-primary { --tw-ring-color: var(--kuzo-primary); }
+      .bg-primary-foreground { background-color: var(--kuzo-primary-foreground); }
+      .text-primary-foreground { color: var(--kuzo-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kuzo-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kuzo-primary-foreground); }
+      .bg-muted { background-color: var(--kuzo-muted); }
+      .text-muted { color: var(--kuzo-muted); }
+      .border-muted { border-color: var(--kuzo-muted); }
+      .ring-muted { --tw-ring-color: var(--kuzo-muted); }
+      .bg-muted-foreground { background-color: var(--kuzo-muted-foreground); }
+      .text-muted-foreground { color: var(--kuzo-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kuzo-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kuzo-muted-foreground); }
+      .bg-border { background-color: var(--kuzo-border); }
+      .text-border { color: var(--kuzo-border); }
+      .border-border { border-color: var(--kuzo-border); }
+      .ring-border { --tw-ring-color: var(--kuzo-border); }
+      .bg-input { background-color: var(--kuzo-input); }
+      .text-input { color: var(--kuzo-input); }
+      .border-input { border-color: var(--kuzo-input); }
+      .ring-input { --tw-ring-color: var(--kuzo-input); }
+      .bg-ring { background-color: var(--kuzo-ring); }
+      .text-ring { color: var(--kuzo-ring); }
+      .border-ring { border-color: var(--kuzo-ring); }
+      .ring-ring { --tw-ring-color: var(--kuzo-ring); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+    <style id="critical-layout">
+      html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { font-family: var(--kuzo-font-sans); background: var(--kuzo-background); color: var(--kuzo-foreground); margin: 0; }
+
+      /* Container */
+      .kuzo-container { max-width: 1200px; margin: 0 auto; padding: 0 32px; width: 100%; }
+
+      /* Nav */
+      .kuzo-nav { position: sticky; top: 0; z-index: 50; height: 64px; background: rgba(14, 15, 19, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--kuzo-border); }
+      .kuzo-nav-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; gap: 24px; position: relative; }
+      .kuzo-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--kuzo-foreground); font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
+      .kuzo-brand img { height: 28px; width: auto; display: block; }
+      .kuzo-nav-links { display: flex; align-items: center; gap: 32px; }
+      .kuzo-nav-links a { color: var(--kuzo-muted-foreground); text-decoration: none; font-size: 15px; transition: color 150ms cubic-bezier(.2,.8,.2,1); }
+      .kuzo-nav-links a:hover { color: var(--kuzo-foreground); }
+      .kuzo-nav-links a:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 4px; border-radius: 4px; }
+      .kuzo-nav-actions { display: flex; align-items: center; gap: 4px; }
+      .kuzo-nav-github { display: flex; align-items: center; color: var(--kuzo-muted-foreground); transition: color 150ms cubic-bezier(.2,.8,.2,1); text-decoration: none; padding: 8px; border-radius: 4px; }
+      .kuzo-nav-github:hover { color: var(--kuzo-foreground); }
+      .kuzo-nav-github:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 2px; }
+      .kuzo-nav-hamburger { display: none; background: none; border: none; color: var(--kuzo-foreground); cursor: pointer; padding: 8px; border-radius: 4px; align-items: center; justify-content: center; }
+      .kuzo-nav-hamburger:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 2px; }
+      .kuzo-nav-icon { width: 20px; height: 20px; stroke-width: 1.5; flex-shrink: 0; }
+
+      @media (max-width: 767px) {
+        .kuzo-container { padding: 0 16px; }
+        .kuzo-nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; background: var(--kuzo-card); border-bottom: 1px solid var(--kuzo-border); padding: 16px; gap: 16px; }
+        .kuzo-nav-links.open { display: flex; }
+        .kuzo-nav-hamburger { display: flex; }
+      }
+
+      /* Section */
+      .kuzo-section { padding: 80px 0; }
+      .kuzo-section-title { font-size: clamp(22px, 2.4vw, 32px); font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; color: var(--kuzo-foreground); margin: 0 0 40px 0; text-wrap: balance; }
+      .kuzo-section-intro { font-size: 18px; line-height: 1.55; color: var(--kuzo-muted-foreground); margin: 0 0 32px 0; max-width: 600px; }
+
+      @media (max-width: 768px) {
+        .kuzo-section { padding: 48px 0; }
+      }
+
+      /* Hero */
+      .kuzo-hero { padding: 120px 0; }
+      .kuzo-hero-inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
+      .kuzo-hero-logo { width: 120px; height: auto; margin-bottom: 32px; display: block; }
+      .kuzo-hero-title { font-size: clamp(40px, 6vw, 88px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; color: var(--kuzo-foreground); margin: 0; text-wrap: balance; }
+      .kuzo-hero-tagline { font-size: clamp(22px, 2.4vw, 32px); font-weight: 400; line-height: 1.2; color: var(--kuzo-muted-foreground); margin: 16px 0 0 0; text-wrap: balance; }
+      .kuzo-hero-desc { font-size: 18px; line-height: 1.55; color: var(--kuzo-muted-foreground); max-width: 600px; margin: 24px 0 0 0; }
+      .kuzo-hero-ctas { display: flex; gap: 16px; margin-top: 40px; flex-wrap: wrap; justify-content: center; }
+
+      @media (max-width: 768px) {
+        .kuzo-hero { padding: 80px 0; }
+      }
+
+      /* Buttons */
+      .kuzo-btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; transition: transform 150ms cubic-bezier(.2,.8,.2,1), border-color 150ms cubic-bezier(.2,.8,.2,1); white-space: nowrap; }
+      .kuzo-btn-primary { background: var(--kuzo-primary); color: var(--kuzo-primary-foreground); border: 1px solid var(--kuzo-primary); }
+      .kuzo-btn-primary:hover { transform: translateY(-1px); }
+      .kuzo-btn-primary:active { transform: translateY(0); }
+      .kuzo-btn-primary:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 2px; }
+      .kuzo-btn-secondary { background: transparent; color: var(--kuzo-foreground); border: 1px solid var(--kuzo-border); }
+      .kuzo-btn-secondary:hover { border-color: var(--kuzo-muted-foreground); transform: translateY(-1px); }
+      .kuzo-btn-secondary:active { transform: translateY(0); }
+      .kuzo-btn-secondary:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 2px; }
+
+      /* Feature Grid */
+      .kuzo-feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; }
+      .kuzo-feature-card { background: var(--kuzo-card); border: 1px solid var(--kuzo-border); border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 12px; transition: border-color 150ms cubic-bezier(.2,.8,.2,1); }
+      .kuzo-feature-card:hover { border-color: var(--kuzo-muted-foreground); }
+      .kuzo-feature-icon { width: 20px; height: 20px; color: var(--kuzo-primary); stroke-width: 1.5; flex-shrink: 0; }
+      .kuzo-feature-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; color: var(--kuzo-foreground); margin: 0; }
+      .kuzo-feature-desc { font-size: 15px; line-height: 1.6; color: var(--kuzo-muted-foreground); margin: 0; }
+
+      @media (max-width: 1024px) { .kuzo-feature-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 640px) { .kuzo-feature-grid { grid-template-columns: 1fr; } }
+
+      /* Code Blocks */
+      .kuzo-code-block { background: var(--kuzo-card); border: 1px solid var(--kuzo-border); border-radius: 8px; padding: 20px; overflow-x: auto; margin: 16px 0 0 0; }
+      .kuzo-code-block pre { margin: 0; font-family: var(--kuzo-font-mono); font-size: 14px; line-height: 1.6; color: var(--kuzo-foreground); white-space: pre; tab-size: 4; }
+      .kuzo-code-label { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--kuzo-muted-foreground); margin: 0 0 8px 0; }
+
+      /* Quick Start Grid */
+      .kuzo-quickstart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+      @media (max-width: 768px) { .kuzo-quickstart-grid { grid-template-columns: 1fr; } }
+
+      /* Tour Items */
+      .kuzo-tour-item { margin-bottom: 32px; }
+      .kuzo-tour-item:last-child { margin-bottom: 0; }
+
+      /* CLI Table */
+      .kuzo-table-wrap { overflow-x: auto; border: 1px solid var(--kuzo-border); border-radius: 8px; }
+      .kuzo-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+      .kuzo-table thead th { background: var(--kuzo-muted); color: var(--kuzo-muted-foreground); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; text-align: left; padding: 14px 16px; }
+      .kuzo-table tbody td { border-top: 1px solid var(--kuzo-border); padding: 14px 16px; vertical-align: top; }
+      .kuzo-table .cmd { font-family: var(--kuzo-font-mono); font-size: 13px; color: var(--kuzo-foreground); white-space: nowrap; }
+      .kuzo-table .desc { font-size: 14px; color: var(--kuzo-muted-foreground); }
+
+      /* Footer */
+      .kuzo-footer { border-top: 1px solid var(--kuzo-border); padding: 24px 0; }
+      .kuzo-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      .kuzo-footer-copy { font-size: 14px; color: var(--kuzo-muted-foreground); margin: 0; }
+      .kuzo-footer-links { display: flex; gap: 24px; }
+      .kuzo-footer-links a { color: var(--kuzo-muted-foreground); text-decoration: none; font-size: 14px; transition: color 150ms cubic-bezier(.2,.8,.2,1); }
+      .kuzo-footer-links a:hover { color: var(--kuzo-foreground); }
+      .kuzo-footer-links a:focus-visible { outline: 2px solid var(--kuzo-ring); outline-offset: 2px; border-radius: 4px; }
+
+      /* Reduced Motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+        html { scroll-behavior: auto; }
+      }
+
+      /* Touch Devices — disable hover transforms */
+      @media (hover: none) {
+        .kuzo-btn:hover { transform: none; }
+        .kuzo-feature-card:hover { border-color: var(--kuzo-border); }
+      }
+    </style>
+    <style id="syntax-highlight">
+      :root {
+        --code-ty: #7FB3D5;
+        --code-str: #98C379;
+        --code-num: #E5C07B;
+        --code-fn: #61AFEF;
+      }
+      .kw { color: var(--kuzo-primary); }
+      .ty { color: var(--code-ty); }
+      .str { color: var(--code-str); }
+      .num { color: var(--code-num); }
+      .com { color: var(--kuzo-muted-foreground); font-style: italic; }
+      .fn { color: var(--code-fn); }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+      <!-- Navigation -->
+      <nav class="kuzo-nav">
+        <div class="kuzo-container kuzo-nav-inner">
+          <a href="#" class="kuzo-brand">
+            <img src="../assets/logo.png" alt="Kuzo logo" height="28" />
+            <span>Kuzo</span>
+          </a>
+          <div class="kuzo-nav-links" id="navLinks">
+            <a href="#features">Features</a>
+            <a href="#quick-start">Quick Start</a>
+            <a href="tutorial.html" data-dom-id="nav-tutorial">Tutorial</a>
+            <a href="#tour">Tour</a>
+            <a href="#cli">CLI</a>
+          </div>
+          <div class="kuzo-nav-actions">
+            <a href="https://github.com" class="kuzo-nav-github" aria-label="GitHub repository" target="_blank" rel="noopener">
+              <i data-lucide="github" class="kuzo-nav-icon"></i>
+            </a>
+            <button class="kuzo-nav-hamburger" aria-label="Toggle navigation menu" id="navToggle" type="button">
+              <i data-lucide="menu" class="kuzo-nav-icon"></i>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Hero -->
+      <section class="kuzo-hero">
+        <div class="kuzo-container kuzo-hero-inner">
+          <img src="../assets/logo.png" alt="Kuzo logo" class="kuzo-hero-logo" />
+          <h1 class="kuzo-hero-title">Kuzo</h1>
+          <p class="kuzo-hero-tagline">A statically typed programming language</p>
+          <p class="kuzo-hero-desc">Write expressive, type-safe code with generics, algebraic data types, pattern matching, and built-in async channels. Compile to cross-platform .kzo binaries.</p>
+          <div class="kuzo-hero-ctas">
+            <a href="#quick-start" class="kuzo-btn kuzo-btn-primary">Quick Start</a>
+            <a href="#tour" class="kuzo-btn kuzo-btn-secondary">Language Tour</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="kuzo-section" id="features">
+        <div class="kuzo-container">
+          <h2 class="kuzo-section-title">Features</h2>
+          <div class="kuzo-feature-grid">
+            <div class="kuzo-feature-card">
+              <i data-lucide="shield-check" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Static Typing</h3>
+              <p class="kuzo-feature-desc">Catch errors at compile time with a robust, expressive type system.</p>
+            </div>
+            <div class="kuzo-feature-card">
+              <i data-lucide="brackets" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Generics</h3>
+              <p class="kuzo-feature-desc">Write reusable, type-safe code with generic functions and types.</p>
+            </div>
+            <div class="kuzo-feature-card">
+              <i data-lucide="git-branch" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Algebraic Data Types</h3>
+              <p class="kuzo-feature-desc">Model domain complexity with tagged unions and pattern matching.</p>
+            </div>
+            <div class="kuzo-feature-card">
+              <i data-lucide="layout-grid" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Records</h3>
+              <p class="kuzo-feature-desc">Group related fields with named record types for clear data structures.</p>
+            </div>
+            <div class="kuzo-feature-card">
+              <i data-lucide="alert-circle" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Error Handling</h3>
+              <p class="kuzo-feature-desc">First-class error handling with Throw types and throw/Ok expressions.</p>
+            </div>
+            <div class="kuzo-feature-card">
+              <i data-lucide="radio" class="kuzo-feature-icon"></i>
+              <h3 class="kuzo-feature-title">Async &amp; Channels</h3>
+              <p class="kuzo-feature-desc">Built-in async/await and typed channels for concurrent programming.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Start -->
+      <section class="kuzo-section" id="quick-start">
+        <div class="kuzo-container">
+          <h2 class="kuzo-section-title">Quick Start</h2>
+          <p class="kuzo-section-intro">Get up and running in seconds.</p>
+          <div class="kuzo-code-block">
+            <pre><span class="com"># Create a new project</span>
+kuzo init myapp
+cd myapp
+
+<span class="com"># Compile and run</span>
+kuzo run
+
+<span class="com"># Or compile only</span>
+kuzo build
+<span class="com"># Execute the artifact</span>
+kuzo run out/myapp.kzo</pre>
+          </div>
+          <div class="kuzo-quickstart-grid">
+            <div>
+              <p class="kuzo-code-label">Project Layout</p>
+              <div class="kuzo-code-block">
+                <pre>myapp/
+├── kuzo.toml      <span class="com"># Project manifest</span>
+└── src/Main.kz    <span class="com"># Entry point</span></pre>
+              </div>
+            </div>
+            <div>
+              <p class="kuzo-code-label">src/Main.kz</p>
+              <div class="kuzo-code-block">
+                <pre><span class="kw">fun</span> <span class="fn">main</span>(): <span class="ty">void</span> {
+    <span class="fn">println</span>(<span class="str">"Hello, Kuzo!"</span>)
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Language Tour -->
+      <section class="kuzo-section" id="tour">
+        <div class="kuzo-container">
+          <h2 class="kuzo-section-title">Language Tour</h2>
+          <p class="kuzo-section-intro">A quick tour of Kuzo's core features.</p>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">Variables</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// Variables</span>
+<span class="kw">val</span> x: <span class="ty">i32</span> = <span class="num">42</span>
+<span class="kw">var</span> counter: <span class="ty">i32</span> = <span class="num">0</span></pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">Functions and Generics</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// Functions and generics</span>
+<span class="kw">fun</span> <span class="fn">add</span>(a: <span class="ty">i32</span>, b: <span class="ty">i32</span>): <span class="ty">i32</span> { a + b }
+<span class="kw">fun</span> <span class="fn">identity</span>&lt;<span class="ty">T</span>&gt;(x: <span class="ty">T</span>): <span class="ty">T</span> { x }</pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">ADTs and Pattern Matching</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// ADTs and pattern matching</span>
+<span class="kw">type</span> <span class="ty">Shape</span> = | <span class="ty">Circle</span>(<span class="ty">f64</span>) | <span class="ty">Rect</span>(<span class="ty">f64</span>, <span class="ty">f64</span>)
+
+<span class="kw">fun</span> <span class="fn">area</span>(s: <span class="ty">Shape</span>): <span class="ty">f64</span> {
+    <span class="kw">match</span> s {
+        <span class="ty">Circle</span>(r) =&gt; <span class="num">3.14159</span> * r * r
+        <span class="ty">Rect</span>(w, h) =&gt; w * h
+    }
+}</pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">Records</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// Records</span>
+<span class="kw">type</span> <span class="ty">Point</span> = <span class="ty">Point</span>(x: <span class="ty">i32</span>, y: <span class="ty">i32</span>)
+<span class="kw">val</span> p = <span class="ty">Point</span>(<span class="num">3</span>, <span class="num">4</span>)</pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">Error Handling</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// Error handling</span>
+<span class="kw">fun</span> <span class="fn">safeDiv</span>(a: <span class="ty">i32</span>, b: <span class="ty">i32</span>): <span class="ty">Throw</span>&lt;<span class="ty">i32</span>, <span class="ty">Error</span>&gt; {
+    <span class="kw">if</span> b == <span class="num">0</span> { <span class="kw">throw</span> <span class="ty">Error</span>(<span class="str">"div by zero"</span>) }
+    <span class="ty">Ok</span>(a / b)
+}</pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">Async and Channels</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// Async and channels</span>
+<span class="kw">async</span> <span class="kw">fun</span> <span class="fn">fetch</span>(): <span class="ty">Async</span>&lt;<span class="ty">i32</span>&gt; {
+    <span class="ty">Timer</span>(<span class="num">1</span>).<span class="kw">await</span>()
+    <span class="num">42</span>
+}
+
+<span class="kw">val</span> ch = <span class="fn">channel</span>&lt;<span class="ty">i32</span>&gt;(<span class="num">2</span>)
+ch.send(<span class="num">10</span>)
+ch.recv()  <span class="com">// 10</span></pre>
+            </div>
+          </div>
+
+          <div class="kuzo-tour-item">
+            <p class="kuzo-code-label">String Interpolation</p>
+            <div class="kuzo-code-block">
+              <pre><span class="com">// String interpolation</span>
+<span class="fn">println</span>(<span class="str">"sum = {1 + 2}, point = {p}"</span>)</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLI Reference -->
+      <section class="kuzo-section" id="cli">
+        <div class="kuzo-container">
+          <h2 class="kuzo-section-title">CLI</h2>
+          <div class="kuzo-table-wrap">
+            <table class="kuzo-table">
+              <thead>
+                <tr>
+                  <th>Command</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="cmd">kuzo init [name]</td>
+                  <td class="desc">Scaffold a new project</td>
+                </tr>
+                <tr>
+                  <td class="cmd">kuzo build [-O N]</td>
+                  <td class="desc">Compile to .kzo (-O 0..3, default 2)</td>
+                </tr>
+                <tr>
+                  <td class="cmd">kuzo run [-O N]</td>
+                  <td class="desc">Compile and run</td>
+                </tr>
+                <tr>
+                  <td class="cmd">kuzo run &lt;file.kzo&gt;</td>
+                  <td class="desc">Execute a compiled artifact</td>
+                </tr>
+                <tr>
+                  <td class="cmd">kuzo debug --stage S</td>
+                  <td class="desc">Diagnostics (tokens/ast/check/emit-c/emit-ffi/full)</td>
+                </tr>
+                <tr>
+                  <td class="cmd">kuzo inspect &lt;file.kzo&gt;</td>
+                  <td class="desc">Inspect .kzo metadata</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="kuzo-footer">
+        <div class="kuzo-container kuzo-footer-inner">
+          <p class="kuzo-footer-copy">© 2026 Kuzo</p>
+          <div class="kuzo-footer-links">
+            <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+            <a href="#">Documentation</a>
+            <a href="#">Examples</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+    <script>
+      (function() {
+        var toggle = document.getElementById('navToggle');
+        var links = document.getElementById('navLinks');
+        if (toggle && links) {
+          toggle.addEventListener('click', function() {
+            links.classList.toggle('open');
+          });
+        }
+      })();
+      lucide.createIcons();
+    </script>
+</body>
+</html>
