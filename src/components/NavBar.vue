@@ -43,7 +43,7 @@ onUnmounted(() => {
       </div>
       <div class="kuzo-nav-actions">
         <a
-          href="https://github.com"
+          href="https://github.com/kuzo-lang/Kuzo"
           class="kuzo-nav-github"
           aria-label="GitHub repository"
           target="_blank"
