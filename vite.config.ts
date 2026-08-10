@@ -4,8 +4,8 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   // 组织主站 (<org>.github.io) 用 '/'
-  // 子仓库请改为 '/<仓库名>/'
-  base: '/',
+  // 子仓库用 '/<仓库名>/'，例如本仓库为 '/website/'
+  base: '/website/',
   plugins: [vue()],
   resolve: {
     alias: {
