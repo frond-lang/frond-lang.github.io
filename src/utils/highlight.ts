@@ -6,7 +6,7 @@
 const KEYWORDS = new Set([
   'fun', 'val', 'var', 'if', 'else', 'match', 'type', 'trait',
   'async', 'await', 'throw', 'defer', 'while', 'for', 'in',
-  'break', 'continue', 'true', 'false', 'null',
+  'break', 'continue', 'true', 'false', 'null', 'this',
 ])
 
 const BUILTIN_TYPES = new Set([
@@ -14,7 +14,6 @@ const BUILTIN_TYPES = new Set([
   'u8', 'u16', 'u32', 'u64', 'u128',
   'f16', 'f32', 'f64', 'f128',
   'bool', 'char', 'str', 'void',
-  'self',
 ])
 
 const SPECIAL_TYPES = new Set([

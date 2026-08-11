@@ -287,53 +287,53 @@ fun vowel(c: char): bool {
     }
 }`
 const traitsShow = `trait Show {
-    fun show(self): str
+    fun show(): str
 }
 
 type Point: Show = Point(x: i32, y: i32) {
-    fun show(self): str {
-        "Pt(" + cast(self.x).to(str) + "," + cast(self.y).to(str) + ")"
+    fun show(): str {
+        "Pt(" + cast(x).to(str) + "," + cast(y).to(str) + ")"
     }
 }`
 const traitsMultiple = `trait Greet {
-    fun name(self): str
-    fun hello(self): str {
-        "Hello, " + self.name()
+    fun name(): str
+    fun hello(): str {
+        "Hello, " + name()
     }
 }
 
 trait Sizeable {
-    fun sz(self): i32
+    fun sz(): i32
 }
 
 type Ordering: (Greet, Sizeable, Show) = | Lt | Eq | Gt {
-    fun name(self): str {
-        match self {
+    fun name(): str {
+        match this {
             Lt => "less"
             Eq => "equal"
             Gt => "greater"
         }
     }
-    fun sz(self): i32 {
-        match self { Lt => -1; Eq => 0; Gt => 1 }
+    fun sz(): i32 {
+        match this { Lt => -1; Eq => 0; Gt => 1 }
     }
-    fun show(self): str {
-        "Ordering." + self.name()
+    fun show(): str {
+        "Ordering." + name()
     }
 }`
 const traitsChain = `trait Chain {
-    fun base(self): str
-    fun wrap1(self): str {
-        "[" + self.base() + "]"
+    fun base(): str
+    fun wrap1(): str {
+        "[" + base() + "]"
     }
-    fun wrap2(self): str {
-        "{{" + self.wrap1() + "}}"
+    fun wrap2(): str {
+        "{{" + wrap1() + "}}"
     }
 }
 
 type Tag: Chain = Tag(label: str) {
-    fun base(self): str {
-        self.label
+    fun base(): str {
+        label
     }
 }
 
@@ -341,19 +341,35 @@ val t = Tag("hi")
 // t.wrap1() = "[hi]"
 // t.wrap2() = "{{[hi]}}"`
 const traitsCounter = `trait Counter {
-    fun current(self): i32
+    fun current(): i32
 }
 
 type CounterBox: Counter = CounterBox(count: i32) {
-    fun current(self): i32 { self.count }
-    fun next(self): CounterBox {
-        CounterBox(self.count + 1)
+    fun current(): i32 { count }
+    fun next(): CounterBox {
+        CounterBox(count + 1)
     }
 }
 
 val c = CounterBox(0)
 val three = c.next().next().next()
 // three.current() = 3`
+const traitsMutRef = `trait Counter {
+    fun current(): i32
+    fun &increment(): void
+}
+
+type CounterBox: Counter = CounterBox(count: i32) {
+    fun current(): i32 { count }
+    fun &increment(): void {
+        this.count = this.count + 1
+    }
+}
+
+val c = CounterBox(0)
+c.increment()
+c.increment()
+// c.current() = 2`
 const nullableBasic = `val a: i32? = null
 val b: i32? = 42`
 const nullableCoalesce = `val x: i32? = null
@@ -750,18 +766,21 @@ val ch = cjk[0]         // &#39;你&#39;`
             <h2>Traits</h2>
             <p class="kuzo-prose">Traits define shared behavior. Types implement traits to provide methods. A trait declares method signatures; types provide implementations.</p>
             <CodeBlock :code="traitsShow" />
-            <p class="kuzo-prose">The <code>trait</code> keyword declares a trait. A type implements it by listing the trait name after <code>:</code> and providing method bodies inside <code>{ }</code>. Methods take <code>self</code> as the receiver.</p>
+            <p class="kuzo-prose">The <code>trait</code> keyword declares a trait. A type implements it by listing the trait name after <code>:</code> and providing method bodies inside <code>{ }</code>. The receiver is implicit — use <code>this</code> inside the method body to refer to the instance.</p>
             <p class="kuzo-prose">Types can implement multiple traits:</p>
             <CodeBlock :code="traitsMultiple" />
             <p class="kuzo-prose">List multiple traits in parentheses: <code>(Greet, Sizeable, Show)</code>. The <code>hello</code> method has a default implementation — types only need to implement <code>name</code>, and <code>hello</code> works automatically.</p>
             <div class="kuzo-callout">
               <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Default methods can call other trait methods. <code>hello</code> calls <code>self.name()</code>, which each type implements differently.</p>
+              <p class="kuzo-callout-text">Default methods can call other trait methods. <code>hello</code> calls <code>name()</code>, which each type implements differently.</p>
             </div>
             <p class="kuzo-prose">Default methods can chain — one default calls another, creating multi-layer behavior:</p>
             <CodeBlock :code="traitsChain" />
-            <p class="kuzo-prose">Trait methods can take extra parameters beyond <code>self</code>, and can return new instances for chaining:</p>
+            <p class="kuzo-prose">Trait methods can take extra parameters beyond the implicit receiver, and can return new instances for chaining:</p>
             <CodeBlock :code="traitsCounter" />
+            <p class="kuzo-prose">Use <code>&amp;</code> before the method name to take the receiver by reference — the method can mutate the instance:</p>
+            <CodeBlock :code="traitsMutRef" />
+            <p class="kuzo-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment.</p>
           </section>
 
           <!-- 12. Nullable Types -->
