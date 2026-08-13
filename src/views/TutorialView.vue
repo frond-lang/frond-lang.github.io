@@ -14,7 +14,7 @@ const tocItems: TocItem[] = [
   { id: 'control-flow', label: '4. Control Flow' },
   { id: 'loops', label: '5. Loops' },
   { id: 'arrays', label: '6. Arrays' },
-  { id: 'closures', label: '7. Closures' },
+  { id: 'closures', label: '7. Lambda & Functions' },
   { id: 'generics', label: '8. Generics' },
   { id: 'custom-types', label: '9. Custom Types' },
   { id: 'patterns', label: '10. Pattern Matching' },
@@ -149,16 +149,16 @@ val grid = nested[0][1]`
 const arraysEmpty = `val empty: i32[] = []
 val built = empty ++ [1, 2, 3]`
 const closuresBasic = `val x: i32 = 10
-val read = fun() { x }
+val read = fun(): i32 { x }
 val result = read()`
 const closuresMutation = `var count: i32 = 0
-val inc = fun() { count = count + 1 }
+val inc = fun(): void { count = count + 1 }
 inc()
 inc()
 inc()`
 const closuresMakeCounter = `fun makeCounter(): (() -> i32) {
     var n: i32 = 0
-    fun() {
+    fun(): i32 {
         n = n + 1
         n
     }
@@ -169,10 +169,10 @@ val a = c()
 val b = c()`
 const closuresHigherOrder = `fun apply(f: (() -> i32)): i32 { f() }
 fun compose(f: (() -> i32), g: (() -> i32)): (() -> i32) {
-    fun() { f() + g() }
+    fun(): i32 { f() + g() }
 }`
 const closuresParams = `val base: i32 = 100
-val adder = fun(n: i32) { base + n }
+val adder = fun(n: i32): i32 { base + n }
 
 val r1 = adder(5)   // 105
 val r2 = adder(50)  // 150`
@@ -180,12 +180,12 @@ const closuresStore = `var fns: (() -> i32)[] = []
 var i: i32 = 0
 while i < 3 {
     val captured = i * 10
-    fns = fns ++ [fun() { captured }]
+    fns = fns ++ [fun(): i32 { captured }]
     i = i + 1
 }
 // fns[0]() = 0, fns[1]() = 10, fns[2]() = 20`
 const closuresFactory = `fun makeAdder(n: i32): (() -> i32) {
-    fun() { n + 1}
+    fun(): i32 { n + 1 }
 }
 
 val add5 = makeAdder(5)
@@ -197,7 +197,7 @@ const genericsIdentity = `fun identity<T>(x: T): T {
 val n = identity<i32>(42)
 val s = identity<str>("hello")`
 const genericsDoubleCast = `fun double_cast<T>(x: T): T {
-    cast(cast(x).to(f64)).to(T)
+    x as f64 as T
 }`
 const genericsMultiple = `fun swap<T, U>(a: T, b: U): (U, T) {
     Pair(b, a)
@@ -292,7 +292,7 @@ const traitsShow = `trait Show {
 
 type Point: Show = Point(x: i32, y: i32) {
     fun show(): str {
-        "Pt(" + cast(x).to(str) + "," + cast(y).to(str) + ")"
+        "Pt(" + x as str + "," + y as str + ")"
     }
 }`
 const traitsMultiple = `trait Greet {
@@ -399,16 +399,16 @@ type Email = Email(str)
 
 val uid = UserId(42i64)
 val email = Email("test@example.com")`
-const castingWidening = `val wide = cast(42i8).to(i64)
-val u16v = cast(200u8).to(u16)`
-const castingNarrowing = `val wrapped = cast(300i32).to(i8)
-val negToU8 = cast((-1i32)).to(u8)`
-const castingIntFloat = `val f = cast(42i32).to(f64)
-val i = cast(3.99f64).to(i32)`
-const castingCharInt = `val code = cast('A').to(i32)
-val ch = cast(65i32).to(char)`
-const castingIntStr = `val s = cast(42i32).to(str)
-val b = cast(true).to(str)`
+const castingWidening = `val wide = 42i8 as i64
+val u16v = 200u8 as u16`
+const castingNarrowing = `val wrapped = 300i32 as i8
+val negToU8 = (-1i32) as u8`
+const castingIntFloat = `val f = 42i32 as f64
+val i = 3.99f64 as i32`
+const castingCharInt = `val code = 'A' as i32
+val ch = 65i32 as char`
+const castingIntStr = `val s = 42i32 as str
+val b = true as str`
 const operatorsArithmetic = `val a = 1 + 2 * 3
 val b = (1 + 2) * 3
 val c = 100 / 7
@@ -447,7 +447,7 @@ type Timeout: Err = Timeout(msg: str)
 fun lookup(id: i32): Throw<str, Error> {
     if id < 0 { throw NotFound("negative id") }
     if id == 0 { throw Timeout("timed out") }
-    Ok("user-" + cast(id).to(str))
+    Ok("user-" + id as str)
 }`
 const errorHandlingMatch = `match lookup(-1) {
     Ok(name) => println("found: {name}")
@@ -682,29 +682,33 @@ val ch = cjk[0]         // &#39;你&#39;`
             </div>
           </section>
 
-          <!-- 7. Closures -->
+          <!-- 7. Lambda & Nested Functions -->
           <section id="closures" class="kuzo-tutorial-section">
-            <h2>Closures</h2>
-            <p class="kuzo-prose">Closures are anonymous functions that capture their surrounding scope. Create them with <code>fun</code> without a name.</p>
+            <h2>Lambda &amp; Nested Functions</h2>
+            <p class="kuzo-prose">A lambda is an anonymous function value written with <code>fun(params): ReturnType &#123; body &#125;</code>. The return type is required — the compiler does not infer it.</p>
             <CodeBlock :code="closuresBasic" />
-            <p class="kuzo-prose">Closures capture variables by reference. A closure can read and modify <code>var</code> bindings:</p>
+            <p class="kuzo-prose">Lambdas capture outer variables. A <code>var</code> binding is captured by reference — the lambda sees and can modify the latest value:</p>
             <CodeBlock :code="closuresMutation" />
-            <p class="kuzo-prose">After three calls, <code>count</code> is 3. Changes inside the closure are visible outside.</p>
-            <p class="kuzo-prose">Closures can escape their defining scope and maintain state:</p>
+            <p class="kuzo-prose">After three calls, <code>count</code> is 3. Changes inside the lambda are visible outside.</p>
+            <p class="kuzo-prose">Lambdas can escape their defining scope and maintain state:</p>
             <CodeBlock :code="closuresMakeCounter" />
-            <p class="kuzo-prose">Each call to <code>makeCounter</code> creates an independent counter. The function type <code>() -> i32</code> describes a closure that takes no arguments and returns an <code>i32</code>.</p>
-            <p class="kuzo-prose">Closures are first-class values — pass them as arguments and return them:</p>
+            <p class="kuzo-prose">Each call to <code>makeCounter</code> creates an independent counter. The function type <code>() -&gt; i32</code> describes a function that takes no arguments and returns an <code>i32</code>.</p>
+            <p class="kuzo-prose">Lambdas are first-class values — pass them as arguments and return them:</p>
             <CodeBlock :code="closuresHigherOrder" />
             <div class="kuzo-callout">
               <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Function types use the arrow syntax: <code>(A, B) -> C</code> for a function taking <code>A</code> and <code>B</code>, returning <code>C</code>.</p>
+              <p class="kuzo-callout-text">Function types use the arrow syntax: <code>(A, B) -&gt; C</code> for a function taking <code>A</code> and <code>B</code>, returning <code>C</code>.</p>
             </div>
-            <p class="kuzo-prose">Closures can take parameters and capture multiple variables:</p>
+            <p class="kuzo-prose">Lambdas can take parameters and capture multiple variables:</p>
             <CodeBlock :code="closuresParams" />
-            <p class="kuzo-prose">Closures are first-class — store them in arrays and iterate:</p>
+            <p class="kuzo-prose">Lambdas are first-class — store them in arrays and iterate:</p>
             <CodeBlock :code="closuresStore" />
-            <p class="kuzo-prose">Closures can return other closures, enabling factory patterns:</p>
+            <p class="kuzo-prose">Lambdas can return other lambdas, enabling factory patterns:</p>
             <CodeBlock :code="closuresFactory" />
+            <div class="kuzo-callout">
+              <p class="kuzo-callout-label">Note</p>
+              <p class="kuzo-callout-text">A lambda that captures outer variables is sometimes called a "closure" — but in Kuzo there is only one concept: the lambda. A nested function (<code>fun name(params): T &#123; &#125;</code>) is just a lambda bound to a name.</p>
+            </div>
           </section>
 
           <!-- 8. Generics -->
@@ -815,7 +819,7 @@ val ch = cjk[0]         // &#39;你&#39;`
           <!-- 14. Type Casting -->
           <section id="casting" class="kuzo-tutorial-section">
             <h2>Type Casting</h2>
-            <p class="kuzo-prose">Use <code>cast(value).to(Type)</code> to convert between types. Kuzo supports widening, narrowing, and cross-category conversions.</p>
+            <p class="kuzo-prose">Use <code>value as Type</code> to convert between types. Kuzo supports widening, narrowing, and cross-category conversions.</p>
             <CodeBlock label="Widening" :code="castingWidening" />
             <CodeBlock label="Narrowing with wrapping" :code="castingNarrowing" />
             <p class="kuzo-prose">Narrowing casts wrap around — <code>300i32</code> to <code>i8</code> gives <code>44</code> (300 mod 256 - 256).</p>
@@ -823,10 +827,10 @@ val ch = cjk[0]         // &#39;你&#39;`
             <p class="kuzo-prose">Float-to-int truncates (3.99 becomes 3). Int-to-float is exact for representable values.</p>
             <CodeBlock label="Char &harr; Int" :code="castingCharInt" />
             <CodeBlock label="Int &rarr; Str" :code="castingIntStr" />
-            <p class="kuzo-prose">Cast to <code>str</code> converts any primitive to its string representation. <code>cast(true).to(str)</code> returns <code>"true"</code>.</p>
+            <p class="kuzo-prose">Cast to <code>str</code> converts any primitive to its string representation. <code>true as str</code> returns <code>"true"</code>.</p>
             <div class="kuzo-callout">
               <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Chain casts for complex conversions: <code>cast(cast(65i32).to(i64)).to(i8)</code>.</p>
+              <p class="kuzo-callout-text">Chain casts for complex conversions: <code>65i32 as i64 as i8</code>.</p>
             </div>
           </section>
 
