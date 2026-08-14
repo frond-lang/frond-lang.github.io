@@ -3,10 +3,13 @@
  * Tokenizes source code and wraps tokens in CSS-class spans.
  */
 
+// Synced with the compiler keyword table (src/ast/Parser.rs keyword_type).
 const KEYWORDS = new Set([
   'fun', 'val', 'var', 'if', 'else', 'match', 'type', 'trait',
-  'async', 'await', 'throw', 'defer', 'while', 'for', 'in',
-  'break', 'continue', 'true', 'false', 'null', 'this',
+  'override', 'pub', 'pack', 'import', 'as',
+  'async', 'await', 'throw', 'defer', 'while', 'for', 'in', 'loop',
+  'break', 'continue', 'return', 'lazy', 'true', 'false', 'null',
+  'this', 'super', 'channel', 'select', 'atomic',
 ])
 
 const BUILTIN_TYPES = new Set([

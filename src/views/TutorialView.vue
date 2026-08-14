@@ -370,6 +370,55 @@ val c = CounterBox(0)
 c.increment()
 c.increment()
 // c.current() = 2`
+const traitsOverride = `trait Greeter {
+    fun greet(): str {
+        "hello"
+    }
+}
+
+type Loud: Greeter = Loud(name: str) {
+    override fun greet(): str {
+        super.greet() + " " + name
+    }
+}
+
+val l = Loud("kuzo")
+// l.greet() = "hello kuzo"`
+const traitsSuperLayer = `trait Multi {
+    fun one(): str { "one" }
+    fun two(): str { "two" }
+}
+
+type Impl: Multi = | Impl {
+    override fun one(): str { super.two() + "+one" }
+    override fun two(): str { "TWO" }
+}
+
+// Impl.one() = "two+one"  (super skips the override)
+// Impl.two() = "TWO"      (normal dispatch hits the override)`
+const traitsDelegate = `trait A {
+    fun m(): str { "A.m" }
+}
+trait B {
+    fun m(): str { "B.m" }
+}
+
+// Bind the slot to A's default — no body needed
+type PickA: (A, B) = | PickA {
+    fun m(): str = A.m
+}
+
+// Or override both with your own implementation
+type OwnM: (A, B) = | OwnM {
+    override fun m(): str { "own" }
+}`
+const traitsBindAndBody = `type PickB: (A, B) = | PickB {
+    override fun m(): str = B.m {
+        super.m() + "!"
+    }
+}
+
+// PickB.m() = "B.m!"`
 const nullableBasic = `val a: i32? = null
 val b: i32? = 42`
 const nullableCoalesce = `val x: i32? = null
@@ -785,6 +834,25 @@ val ch = cjk[0]         // &#39;你&#39;`
             <p class="kuzo-prose">Use <code>&amp;</code> before the method name to take the receiver by reference — the method can mutate the instance:</p>
             <CodeBlock :code="traitsMutRef" />
             <p class="kuzo-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment.</p>
+            <h3>Override &amp; super</h3>
+            <p class="kuzo-prose">Overriding a trait's default method requires the <code>override</code> keyword. Inside an override, <code>super.method()</code> calls the default implementation you replaced — the classic way to wrap default behavior:</p>
+            <CodeBlock :code="traitsOverride" />
+            <p class="kuzo-prose"><code>this</code> and <code>super</code> form one system — two views of the same receiver. <code>this.m()</code> (and the bare <code>m()</code>) dispatches dynamically from the top: the type's own override wins, the trait default is the fallback. <code>super.m()</code> dispatches statically to the bound trait default, skipping the override.</p>
+            <div class="kuzo-callout">
+              <p class="kuzo-callout-label">Tip</p>
+              <p class="kuzo-callout-text">They point in opposite directions: a default method calling <code>this.m()</code> reaches <em>down</em> into the type's override (the template-method pattern), while an override calling <code>super.m()</code> reaches <em>up</em> into the default it replaced.</p>
+            </div>
+            <p class="kuzo-prose"><code>super</code> is a layer view, not a value — it works for any method name, always targeting that method's default on the current type:</p>
+            <CodeBlock :code="traitsSuperLayer" />
+            <h3>Resolving Method Conflicts</h3>
+            <p class="kuzo-prose">When a type implements several traits that provide same-named default methods, the conflict must be resolved at the declaration site — with a delegate or an explicit override. Leaving it unresolved is a compile error:</p>
+            <CodeBlock :code="traitsDelegate" />
+            <p class="kuzo-prose">The delegate syntax <code>fun m(): str = A.m</code> binds the method slot to trait <code>A</code>'s default. To override <em>and</em> choose which default <code>super</code> targets, combine the binding with a body:</p>
+            <CodeBlock :code="traitsBindAndBody" />
+            <div class="kuzo-callout">
+              <p class="kuzo-callout-label">Note</p>
+              <p class="kuzo-callout-text">With a unique provider the binding is implicit — plain <code>override fun m()</code> is enough. The <code>= Trait.m</code> annotation is only required when several traits offer same-named defaults.</p>
+            </div>
           </section>
 
           <!-- 12. Nullable Types -->
