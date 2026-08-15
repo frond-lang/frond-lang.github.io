@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Github, Menu } from 'lucide-vue-next'
-const logoUrl = 'https://github.com/kuzo-lang/assets/blob/main/logo.png?raw=true'
+const logoUrl = 'https://github.com/frond-lang/assets/blob/main/logo.png?raw=true'
 
 const navOpen = ref(false)
 
@@ -28,36 +28,36 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <nav class="kuzo-nav">
-    <div class="kuzo-container kuzo-nav-inner">
-      <RouterLink to="/" class="kuzo-brand" @click="closeNav">
-        <img :src="logoUrl" alt="Kuzo logo" height="28" />
-        <span>Kuzo</span>
+  <nav class="frond-nav">
+    <div class="frond-container frond-nav-inner">
+      <RouterLink to="/" class="frond-brand" @click="closeNav">
+        <img :src="logoUrl" alt="Frond logo" height="28" />
+        <span>Frond</span>
       </RouterLink>
-      <div class="kuzo-nav-links" :class="{ open: navOpen }">
+      <div class="frond-nav-links" :class="{ open: navOpen }">
         <RouterLink to="/#features" @click="closeNav">Features</RouterLink>
         <RouterLink to="/#quick-start" @click="closeNav">Quick Start</RouterLink>
         <RouterLink to="/tutorial" @click="closeNav">Tutorial</RouterLink>
         <RouterLink to="/#tour" @click="closeNav">Tour</RouterLink>
         <RouterLink to="/#cli" @click="closeNav">CLI</RouterLink>
       </div>
-      <div class="kuzo-nav-actions">
+      <div class="frond-nav-actions">
         <a
-          href="https://github.com/kuzo-lang/Kuzo"
-          class="kuzo-nav-github"
+          href="https://github.com/frond-lang/Frond"
+          class="frond-nav-github"
           aria-label="GitHub repository"
           target="_blank"
           rel="noopener"
         >
-          <Github class="kuzo-nav-icon" />
+          <Github class="frond-nav-icon" />
         </a>
         <button
-          class="kuzo-nav-hamburger"
+          class="frond-nav-hamburger"
           aria-label="Toggle navigation menu"
           type="button"
           @click="toggleNav"
         >
-          <Menu class="kuzo-nav-icon" />
+          <Menu class="frond-nav-icon" />
         </button>
       </div>
     </div>

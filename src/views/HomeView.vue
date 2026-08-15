@@ -9,7 +9,7 @@ import {
   Radio,
 } from 'lucide-vue-next'
 import CodeBlock from '@/components/CodeBlock.vue'
-const logoUrl = 'https://github.com/kuzo-lang/assets/blob/main/logo.png?raw=true'
+const logoUrl = 'https://github.com/frond-lang/assets/blob/main/logo.png?raw=true'
 
 interface Feature {
   icon: typeof ShieldCheck
@@ -27,32 +27,32 @@ const features: Feature[] = [
 ]
 
 const cliCommands = [
-  { cmd: 'kuzo init [name]', desc: 'Scaffold a new project' },
-  { cmd: 'kuzo build [-O N]', desc: 'Compile to .kzo (-O 0..3, default 2)' },
-  { cmd: 'kuzo run [-O N]', desc: 'Compile and run' },
-  { cmd: 'kuzo run <file.kzo>', desc: 'Execute a compiled artifact' },
-  { cmd: 'kuzo debug --stage S', desc: 'Diagnostics (tokens/ast/check/emit-c/emit-ffi/full)' },
-  { cmd: 'kuzo inspect <file.kzo>', desc: 'Inspect .kzo metadata' },
+  { cmd: 'frond init [name]', desc: 'Scaffold a new project' },
+  { cmd: 'frond build [-O N]', desc: 'Compile to .kzo (-O 0..3, default 2)' },
+  { cmd: 'frond run [-O N]', desc: 'Compile and run' },
+  { cmd: 'frond run <file.kzo>', desc: 'Execute a compiled artifact' },
+  { cmd: 'frond debug --stage S', desc: 'Diagnostics (tokens/ast/check/emit-c/emit-ffi/full)' },
+  { cmd: 'frond inspect <file.kzo>', desc: 'Inspect .kzo metadata' },
 ]
 
 const quickStartCode = `# Create a new project
-kuzo init myapp
+frond init myapp
 cd myapp
 
 # Compile and run
-kuzo run
+frond run
 
 # Or compile only
-kuzo build
+frond build
 # Execute the artifact
-kuzo run out/myapp.kzo`
+frond run out/myapp.kzo`
 
 const projectLayout = `myapp/
-├── kuzo.toml      # Project manifest
+├── frond.toml      # Project manifest
 └── src/Main.kz    # Entry point`
 
 const mainCode = `fun main(): void {
-    println("Hello, Kuzo!")
+    println("Hello, Frond!")
 }`
 
 const variablesCode = `val x: i32 = 42
@@ -93,49 +93,49 @@ const stringCode = `println("sum = {1 + 2}, point = {p}")`
 <template>
   <main>
     <!-- Hero -->
-    <section class="kuzo-hero">
-      <div class="kuzo-container kuzo-hero-inner">
-        <img :src="logoUrl" alt="Kuzo logo" class="kuzo-hero-logo" />
-        <h1 class="kuzo-hero-title">Kuzo</h1>
-        <p class="kuzo-hero-tagline">A statically typed programming language</p>
-        <p class="kuzo-hero-desc">
+    <section class="frond-hero">
+      <div class="frond-container frond-hero-inner">
+        <img :src="logoUrl" alt="Frond logo" class="frond-hero-logo" />
+        <h1 class="frond-hero-title">Frond</h1>
+        <p class="frond-hero-tagline">A statically typed programming language</p>
+        <p class="frond-hero-desc">
           Write expressive, type-safe code with generics, algebraic data types, pattern matching,
           and built-in async channels. Compile to cross-platform .kzo binaries.
         </p>
-        <div class="kuzo-hero-ctas">
-          <RouterLink to="/#quick-start" class="kuzo-btn kuzo-btn-primary">Quick Start</RouterLink>
-          <RouterLink to="/#tour" class="kuzo-btn kuzo-btn-secondary">Language Tour</RouterLink>
+        <div class="frond-hero-ctas">
+          <RouterLink to="/#quick-start" class="frond-btn frond-btn-primary">Quick Start</RouterLink>
+          <RouterLink to="/#tour" class="frond-btn frond-btn-secondary">Language Tour</RouterLink>
         </div>
       </div>
     </section>
 
     <!-- Features -->
-    <section class="kuzo-section" id="features">
-      <div class="kuzo-container">
-        <h2 class="kuzo-section-title">Features</h2>
-        <div class="kuzo-feature-grid">
-          <div v-for="f in features" :key="f.title" class="kuzo-feature-card">
-            <component :is="f.icon" class="kuzo-feature-icon" />
-            <h3 class="kuzo-feature-title">{{ f.title }}</h3>
-            <p class="kuzo-feature-desc">{{ f.desc }}</p>
+    <section class="frond-section" id="features">
+      <div class="frond-container">
+        <h2 class="frond-section-title">Features</h2>
+        <div class="frond-feature-grid">
+          <div v-for="f in features" :key="f.title" class="frond-feature-card">
+            <component :is="f.icon" class="frond-feature-icon" />
+            <h3 class="frond-feature-title">{{ f.title }}</h3>
+            <p class="frond-feature-desc">{{ f.desc }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Quick Start -->
-    <section class="kuzo-section" id="quick-start">
-      <div class="kuzo-container">
-        <h2 class="kuzo-section-title">Quick Start</h2>
-        <p class="kuzo-section-intro">Get up and running in seconds.</p>
+    <section class="frond-section" id="quick-start">
+      <div class="frond-container">
+        <h2 class="frond-section-title">Quick Start</h2>
+        <p class="frond-section-intro">Get up and running in seconds.</p>
         <CodeBlock :code="quickStartCode" />
-        <div class="kuzo-quickstart-grid">
+        <div class="frond-quickstart-grid">
           <div>
-            <p class="kuzo-code-label">Project Layout</p>
+            <p class="frond-code-label">Project Layout</p>
             <CodeBlock :code="projectLayout" />
           </div>
           <div>
-            <p class="kuzo-code-label">src/Main.kz</p>
+            <p class="frond-code-label">src/Main.kz</p>
             <CodeBlock :code="mainCode" />
           </div>
         </div>
@@ -143,47 +143,47 @@ const stringCode = `println("sum = {1 + 2}, point = {p}")`
     </section>
 
     <!-- Language Tour -->
-    <section class="kuzo-section" id="tour">
-      <div class="kuzo-container">
-        <h2 class="kuzo-section-title">Language Tour</h2>
-        <p class="kuzo-section-intro">A quick tour of Kuzo's core features.</p>
+    <section class="frond-section" id="tour">
+      <div class="frond-container">
+        <h2 class="frond-section-title">Language Tour</h2>
+        <p class="frond-section-intro">A quick tour of Frond's core features.</p>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="Variables" :code="variablesCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="Functions and Generics" :code="functionsCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="ADTs and Pattern Matching" :code="adtCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="Records" :code="recordCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="Error Handling" :code="errorHandlingCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="Async and Channels" :code="asyncCode" />
         </div>
 
-        <div class="kuzo-tour-item">
+        <div class="frond-tour-item">
           <CodeBlock label="String Interpolation" :code="stringCode" />
         </div>
       </div>
     </section>
 
     <!-- CLI Reference -->
-    <section class="kuzo-section" id="cli">
-      <div class="kuzo-container">
-        <h2 class="kuzo-section-title">CLI</h2>
-        <div class="kuzo-table-wrap">
-          <table class="kuzo-table">
+    <section class="frond-section" id="cli">
+      <div class="frond-container">
+        <h2 class="frond-section-title">CLI</h2>
+        <div class="frond-table-wrap">
+          <table class="frond-table">
             <thead>
               <tr>
                 <th>Command</th>

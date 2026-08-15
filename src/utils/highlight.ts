@@ -1,5 +1,5 @@
 /**
- * Lightweight Kuzo syntax highlighter.
+ * Lightweight Frond syntax highlighter.
  * Tokenizes source code and wraps tokens in CSS-class spans.
  */
 
@@ -128,7 +128,7 @@ function tokenize(code: string): Token[] {
   return tokens
 }
 
-export function highlightKuzo(code: string): string {
+export function highlightFrond(code: string): string {
   const tokens = tokenize(code)
   return tokens
     .map((t) => {

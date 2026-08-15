@@ -27,7 +27,8 @@ const tocItems: TocItem[] = [
   { id: 'async', label: '17. Async & Channels' },
   { id: 'defer', label: '18. Defer' },
   { id: 'strings', label: '19. Strings' },
-  { id: 'next-steps', label: '20. Next Steps' },
+  { id: 'modules', label: '20. Modules & Imports' },
+  { id: 'next-steps', label: '21. Next Steps' },
 ]
 
 const activeSection = ref('hello-world')
@@ -35,7 +36,7 @@ let observer: IntersectionObserver | null = null
 
 onMounted(async () => {
   await nextTick()
-  const sections = document.querySelectorAll('.kuzo-tutorial-section')
+  const sections = document.querySelectorAll('.frond-tutorial-section')
   if (!sections.length || !('IntersectionObserver' in window)) return
 
   observer = new IntersectionObserver(
@@ -56,13 +57,13 @@ onUnmounted(() => {
 })
 
 // --- Code block strings ---
-const helloWorldBash = `kuzo init myapp
+const helloWorldBash = `frond init myapp
 cd myapp
-kuzo run`
+frond run`
 const helloWorldMain = `fun main(): void {
-    println("Hello, Kuzo!")
+    println("Hello, Frond!")
 }`
-const variablesBasic = `val name: str = "Kuzo"
+const variablesBasic = `val name: str = "Frond"
 val version: i32 = 1
 var counter: i32 = 0
 counter = counter + 1`
@@ -136,6 +137,16 @@ const loopsForIn = `val arr = [10, 20, 30, 40]
 var total: i32 = 0
 for x in arr.iter() {
     total = total + x
+}`
+const loopsRange = `var sum: i64 = 0
+for i in 0..5 { sum = sum + i }       // 0+1+2+3+4 = 10
+
+var total: i64 = 0
+for i in 1..=10 { total = total + i }  // inclusive: 1..10 = 55`
+const loopsInfinite = `var attempts: i32 = 0
+loop {
+    attempts = attempts + 1
+    if attempts >= 3 { break }
 }`
 const arraysBasic = `val nums = [1, 2, 3, 4, 5]
 val first = nums[0]
@@ -282,7 +293,7 @@ const patternsLiteral = `fun command(cmd: str): i32 {
 
 fun vowel(c: char): bool {
     match c {
-        &#39;a&#39; | &#39;e&#39; | &#39;i&#39; | &#39;o&#39; | &#39;u&#39; => true
+        'a' | 'e' | 'i' | 'o' | 'u' => true
         _ => false
     }
 }`
@@ -382,8 +393,8 @@ type Loud: Greeter = Loud(name: str) {
     }
 }
 
-val l = Loud("kuzo")
-// l.greet() = "hello kuzo"`
+val l = Loud("frond")
+// l.greet() = "hello frond"`
 const traitsSuperLayer = `trait Multi {
     fun one(): str { "one" }
     fun two(): str { "two" }
@@ -500,9 +511,7 @@ fun lookup(id: i32): Throw<str, Error> {
 }`
 const errorHandlingMatch = `match lookup(-1) {
     Ok(name) => println("found: {name}")
-    Error(NotFound(m)) => println("not found: {m}")
-    Error(Timeout(m)) => println("timeout: {m}")
-    Error(_) => println("other error")
+    Error(e) => println("failed: {e.msg}")  // "failed: negative id"
 }`
 const errorHandlingCoalesce = `val result = safeDiv(10, 0) ?? -1
 // result = -1 (safeDiv throws, ?? provides default)`
@@ -562,14 +571,14 @@ const deferRecurse = `fun recurse(n: i32): i32 {
     if n <= 0 { 0 } else { n + recurse(n - 1) }
 }
 // recurse(2) prints: defer 0, defer 1, defer 2`
-const stringsInterpolation = `val name = "Kuzo"
+const stringsInterpolation = `val name = "Frond"
 val version = 1
 
 println("Welcome to {name} v{version}")
 println("sum = {1 + 2}")
 println("point = {Point(3, 4)}")`
 const stringsOperations = `val s = "hello"
-val first = s[0]      // &#39;h&#39; (char)
+val first = s[0]      // 'h' (char)
 val len = s.len()      // 5
 val concat = "ab" + "cd"  // "abcd"
 val mixed = "n=" + 42    // "n=42" (str + int)`
@@ -583,49 +592,59 @@ val unicode = "\\u{1F600}"  // emoji
 val nul = "\\0"            // NUL character`
 const stringsUnicode = `val emoji = "😀😁😂"
 val len = emoji.len()    // 3 (one codepoint each)
-val first = emoji[0]    // &#39;😀&#39;
+val first = emoji[0]    // '😀'
 
 val cjk = "你好"
-val ch = cjk[0]         // &#39;你&#39;`
+val ch = cjk[0]         // '你'`
+const modulesBasic = `import std.os.Env
+
+fun main(): void {
+    Env.set("GREETING", "hello")
+    val greeting = Env.get("GREETING")
+    println(greeting)  // "hello"
+}`
+const modulesSelective = `import std.io.File.{remove as delete_file}
+
+// delete_file("old.txt") now calls File.remove`
 </script>
 
 <template>
   <main>
     <!-- Tutorial Header -->
-    <section class="kuzo-tutorial-header">
-      <div class="kuzo-container">
-        <h1 class="kuzo-tutorial-title">Getting Started</h1>
-        <p class="kuzo-tutorial-subtitle">
-          Learn Kuzo from scratch — from Hello World to async channels.
+    <section class="frond-tutorial-header">
+      <div class="frond-container">
+        <h1 class="frond-tutorial-title">Getting Started</h1>
+        <p class="frond-tutorial-subtitle">
+          Learn Frond from scratch — from Hello World to modules, async, and channels.
         </p>
       </div>
     </section>
 
     <!-- Tutorial Body -->
-    <div class="kuzo-container">
+    <div class="frond-container">
       <!-- Mobile TOC -->
-      <nav class="kuzo-toc-mobile no-scrollbar" aria-label="Table of contents">
+      <nav class="frond-toc-mobile no-scrollbar" aria-label="Table of contents">
         <a
           v-for="item in tocItems"
           :key="item.id"
           :href="`#${item.id}`"
-          class="kuzo-toc-chip"
+          class="frond-toc-chip"
           :class="{ active: activeSection === item.id }"
         >
           {{ item.label }}
         </a>
       </nav>
 
-      <div class="kuzo-tutorial-grid">
+      <div class="frond-tutorial-grid">
         <!-- Desktop TOC Sidebar -->
-        <aside class="kuzo-toc">
-          <p class="kuzo-toc-heading">Contents</p>
-          <nav class="kuzo-toc-list">
+        <aside class="frond-toc">
+          <p class="frond-toc-heading">Contents</p>
+          <nav class="frond-toc-list">
             <a
               v-for="item in tocItems"
               :key="item.id"
               :href="`#${item.id}`"
-              class="kuzo-toc-link"
+              class="frond-toc-link"
               :class="{ active: activeSection === item.id }"
             >
               {{ item.label }}
@@ -634,390 +653,423 @@ val ch = cjk[0]         // &#39;你&#39;`
         </aside>
 
         <!-- Content -->
-        <div class="kuzo-content">
+        <div class="frond-content">
           <!-- 1. Hello World -->
-          <section id="hello-world" class="kuzo-tutorial-section">
+          <section id="hello-world" class="frond-tutorial-section">
             <h2>Hello World</h2>
-            <p class="kuzo-prose">Every Kuzo program starts with a <code>main</code> function. Let's create your first program.</p>
-            <p class="kuzo-prose kuzo-prose-muted">Running <code>kuzo init myapp</code> creates a new project with <code>src/Main.kz</code> as the entry point.</p>
+            <p class="frond-prose">Every Frond program starts with a <code>main</code> function. Let's create your first program.</p>
+            <p class="frond-prose frond-prose-muted">Running <code>frond init myapp</code> creates a new project with <code>src/Main.kz</code> as the entry point.</p>
             <CodeBlock label="bash" :code="helloWorldBash" />
             <CodeBlock label="src/Main.kz" :code="helloWorldMain" />
-            <p class="kuzo-prose">The <code>fun</code> keyword declares a function. <code>main</code> is the entry point — it takes no arguments and returns <code>void</code>. <code>println</code> prints a line to stdout.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Run <code>kuzo run</code> to compile and execute in one step.</p>
+            <p class="frond-prose">The <code>fun</code> keyword declares a function. <code>main</code> is the entry point — it takes no arguments and returns <code>void</code>. <code>println</code> prints a line to stdout.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Run <code>frond run</code> to compile and execute in one step.</p>
             </div>
           </section>
 
           <!-- 2. Variables & Types -->
-          <section id="variables" class="kuzo-tutorial-section">
+          <section id="variables" class="frond-tutorial-section">
             <h2>Variables &amp; Types</h2>
-            <p class="kuzo-prose">Kuzo is statically typed. Use <code>val</code> for immutable bindings and <code>var</code> for mutable ones.</p>
+            <p class="frond-prose">Frond is statically typed. Use <code>val</code> for immutable bindings and <code>var</code> for mutable ones.</p>
             <CodeBlock :code="variablesBasic" />
-            <p class="kuzo-prose">Type annotations are required on declarations. Once a <code>val</code> is assigned, it cannot be reassigned. <code>var</code> allows mutation.</p>
-            <p class="kuzo-prose">Kuzo provides a rich set of primitive types:</p>
+            <p class="frond-prose">Type annotations are required on declarations. Once a <code>val</code> is assigned, it cannot be reassigned. <code>var</code> allows mutation.</p>
+            <p class="frond-prose">Frond provides a rich set of primitive types:</p>
             <CodeBlock :code="variablesInts" />
             <CodeBlock :code="variablesFloats" />
-            <p class="kuzo-prose">Integer types include <code>i8</code> through <code>i128</code> (signed) and <code>u8</code> through <code>u128</code> (unsigned). Float types include <code>f16</code>, <code>f32</code>, <code>f64</code>, and <code>f128</code>. The <code>char</code> type represents a single Unicode character.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Type suffixes like <code>42i64</code> or <code>3.14f64</code> specify the exact type of a literal.</p>
+            <p class="frond-prose">Integer types include <code>i8</code> through <code>i128</code> (signed) and <code>u8</code> through <code>u128</code> (unsigned). Float types include <code>f16</code>, <code>f32</code>, <code>f64</code>, and <code>f128</code>. The <code>char</code> type represents a single Unicode character.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Type suffixes like <code>42i64</code> or <code>3.14f64</code> specify the exact type of a literal.</p>
             </div>
             <h3>Integer Overflow</h3>
-            <p class="kuzo-prose">Integer arithmetic uses wrapping semantics — overflow wraps around to the minimum or maximum value.</p>
+            <p class="frond-prose">Integer arithmetic uses wrapping semantics — overflow wraps around to the minimum or maximum value.</p>
             <CodeBlock :code="variablesOverflow" />
             <h3>Float Special Values</h3>
-            <p class="kuzo-prose">Floats support <code>Inf</code>, <code>-Inf</code>, and <code>NaN</code> following IEEE 754:</p>
+            <p class="frond-prose">Floats support <code>Inf</code>, <code>-Inf</code>, and <code>NaN</code> following IEEE 754:</p>
             <CodeBlock :code="variablesFloatSpecial" />
             <h3>Number Literals</h3>
             <CodeBlock :code="variablesNumberLiterals" />
           </section>
 
           <!-- 3. Functions -->
-          <section id="functions" class="kuzo-tutorial-section">
+          <section id="functions" class="frond-tutorial-section">
             <h2>Functions</h2>
-            <p class="kuzo-prose">Functions are declared with <code>fun</code>. The last expression is the return value — no <code>return</code> keyword needed.</p>
+            <p class="frond-prose">Functions are declared with <code>fun</code>. The last expression is the return value — no <code>return</code> keyword needed.</p>
             <CodeBlock :code="functionsBasic" />
-            <p class="kuzo-prose"><code>add</code> returns the result of <code>a + b</code> without an explicit <code>return</code> keyword. Functions returning <code>void</code> use <code>println</code> or other side effects. This is called expression-based returns.</p>
+            <p class="frond-prose"><code>add</code> returns the result of <code>a + b</code> without an explicit <code>return</code> keyword. Functions returning <code>void</code> use <code>println</code> or other side effects. This is called expression-based returns.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Rule</p>
+              <p class="frond-callout-text">Every function must declare its return type explicitly — <code>fun add(a: i32, b: i32): i32</code> — including recursive functions. Use <code>: void</code> when a function returns nothing.</p>
+            </div>
             <CodeBlock label="Calling functions" :code="functionsCall" />
-            <p class="kuzo-prose">Functions can be recursive:</p>
+            <p class="frond-prose">Functions can be recursive:</p>
             <CodeBlock :code="functionsRecursive" />
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">Recursive functions must be declared at the top level — a function nested inside another function cannot call itself by name.</p>
+            </div>
           </section>
 
           <!-- 4. Control Flow -->
-          <section id="control-flow" class="kuzo-tutorial-section">
+          <section id="control-flow" class="frond-tutorial-section">
             <h2>Control Flow</h2>
-            <p class="kuzo-prose">Kuzo supports <code>if</code>/<code>else</code> conditionals and <code>match</code> expressions. Both are expressions — they return values.</p>
+            <p class="frond-prose">Frond supports <code>if</code>/<code>else</code> conditionals and <code>match</code> expressions. Both are expressions — they return values.</p>
             <CodeBlock label="if / else" :code="controlFlowIfElse" />
-            <p class="kuzo-prose"><code>if</code> is an expression. You can assign its result directly:</p>
+            <p class="frond-prose"><code>if</code> is an expression. You can assign its result directly:</p>
             <CodeBlock :code="controlFlowAssign" />
-            <p class="kuzo-prose">Block expressions evaluate to their last expression:</p>
+            <p class="frond-prose">Block expressions evaluate to their last expression:</p>
             <CodeBlock :code="controlFlowBlock" />
-            <p class="kuzo-prose">A block expression <code>{ ... }</code> evaluates every statement and returns the value of the last expression. This is useful for scoping intermediate variables.</p>
+            <p class="frond-prose">A block expression <code>{ ... }</code> evaluates every statement and returns the value of the last expression. This is useful for scoping intermediate variables.</p>
             <CodeBlock label="match" :code="controlFlowMatch" />
-            <p class="kuzo-prose"><code>match</code> selects the first matching arm. <code>_</code> is a wildcard that matches anything.</p>
+            <p class="frond-prose"><code>match</code> selects the first matching arm. <code>_</code> is a wildcard that matches anything.</p>
           </section>
 
           <!-- 5. Loops -->
-          <section id="loops" class="kuzo-tutorial-section">
+          <section id="loops" class="frond-tutorial-section">
             <h2>Loops</h2>
-            <p class="kuzo-prose">Kuzo provides <code>while</code> loops with <code>break</code> and <code>continue</code>, plus <code>for-in</code> iteration.</p>
+            <p class="frond-prose">Frond provides <code>while</code> loops with <code>break</code> and <code>continue</code>, plus <code>for-in</code> iteration, ranges, and unconditional <code>loop</code>.</p>
             <CodeBlock label="while" :code="loopsWhile" />
-            <p class="kuzo-prose"><code>while</code> repeats as long as the condition is true. Use <code>break</code> to exit early and <code>continue</code> to skip to the next iteration.</p>
+            <p class="frond-prose"><code>while</code> repeats as long as the condition is true. Use <code>break</code> to exit early and <code>continue</code> to skip to the next iteration.</p>
             <CodeBlock :code="loopsBreak" />
             <CodeBlock label="for-in" :code="loopsForIn" />
-            <p class="kuzo-prose"><code>for x in arr.iter()</code> iterates over array elements. Loops can be nested arbitrarily.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text"><code>break</code> only exits the innermost loop — outer loops continue normally.</p>
+            <p class="frond-prose"><code>for x in arr.iter()</code> iterates over array elements. Loops can be nested arbitrarily.</p>
+            <CodeBlock label="Ranges" :code="loopsRange" />
+            <p class="frond-prose">Ranges work with any integer type. <code>a..b</code> excludes the upper bound; <code>a..=b</code> includes it. The loop variable is an <code>i64</code>.</p>
+            <CodeBlock label="loop" :code="loopsInfinite" />
+            <p class="frond-prose"><code>loop</code> repeats its body forever — exit with <code>break</code> or <code>return</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text"><code>break</code> only exits the innermost loop — outer loops continue normally.</p>
             </div>
           </section>
 
           <!-- 6. Arrays -->
-          <section id="arrays" class="kuzo-tutorial-section">
+          <section id="arrays" class="frond-tutorial-section">
             <h2>Arrays</h2>
-            <p class="kuzo-prose">Arrays hold ordered sequences of values. Create them with square brackets.</p>
+            <p class="frond-prose">Arrays hold ordered sequences of values. Create them with square brackets.</p>
             <CodeBlock :code="arraysBasic" />
-            <p class="kuzo-prose">Access elements by index (0-based). <code>.len()</code> returns the array length.</p>
-            <p class="kuzo-prose">Concatenate arrays with <code>++</code>:</p>
+            <p class="frond-prose">Access elements by index (0-based). <code>.len()</code> returns the array length.</p>
+            <p class="frond-prose">Concatenate arrays with <code>++</code>:</p>
             <CodeBlock :code="arraysConcat" />
-            <p class="kuzo-prose"><code>++</code> creates a new array — the originals are unchanged. This is a deep copy, not a mutation.</p>
+            <p class="frond-prose"><code>++</code> creates a new array — the originals are unchanged. This is a deep copy, not a mutation.</p>
             <CodeBlock :code="arraysNested" />
-            <p class="kuzo-prose">Arrays can hold any type, including strings, records, and other arrays.</p>
+            <p class="frond-prose">Arrays can hold any type, including strings, records, and other arrays.</p>
             <CodeBlock :code="arraysEmpty" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Use explicit type annotations (<code>i32[]</code>) for empty arrays since the compiler can't infer the element type.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Use explicit type annotations (<code>i32[]</code>) for empty arrays since the compiler can't infer the element type.</p>
             </div>
           </section>
 
           <!-- 7. Lambda & Nested Functions -->
-          <section id="closures" class="kuzo-tutorial-section">
+          <section id="closures" class="frond-tutorial-section">
             <h2>Lambda &amp; Nested Functions</h2>
-            <p class="kuzo-prose">A lambda is an anonymous function value written with <code>fun(params): ReturnType &#123; body &#125;</code>. The return type is required — the compiler does not infer it.</p>
+            <p class="frond-prose">A lambda is an anonymous function value written with <code>fun(params): ReturnType &#123; body &#125;</code>. The return type is required — the compiler does not infer it.</p>
             <CodeBlock :code="closuresBasic" />
-            <p class="kuzo-prose">Lambdas capture outer variables. A <code>var</code> binding is captured by reference — the lambda sees and can modify the latest value:</p>
+            <p class="frond-prose">Lambdas capture outer variables. A <code>var</code> binding is captured by reference — the lambda sees and can modify the latest value:</p>
             <CodeBlock :code="closuresMutation" />
-            <p class="kuzo-prose">After three calls, <code>count</code> is 3. Changes inside the lambda are visible outside.</p>
-            <p class="kuzo-prose">Lambdas can escape their defining scope and maintain state:</p>
+            <p class="frond-prose">After three calls, <code>count</code> is 3. Changes inside the lambda are visible outside.</p>
+            <p class="frond-prose">Lambdas can escape their defining scope and maintain state:</p>
             <CodeBlock :code="closuresMakeCounter" />
-            <p class="kuzo-prose">Each call to <code>makeCounter</code> creates an independent counter. The function type <code>() -&gt; i32</code> describes a function that takes no arguments and returns an <code>i32</code>.</p>
-            <p class="kuzo-prose">Lambdas are first-class values — pass them as arguments and return them:</p>
+            <p class="frond-prose">Each call to <code>makeCounter</code> creates an independent counter. The function type <code>() -&gt; i32</code> describes a function that takes no arguments and returns an <code>i32</code>.</p>
+            <p class="frond-prose">Lambdas are first-class values — pass them as arguments and return them:</p>
             <CodeBlock :code="closuresHigherOrder" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Function types use the arrow syntax: <code>(A, B) -&gt; C</code> for a function taking <code>A</code> and <code>B</code>, returning <code>C</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Function types use the arrow syntax: <code>(A, B) -&gt; C</code> for a function taking <code>A</code> and <code>B</code>, returning <code>C</code>.</p>
             </div>
-            <p class="kuzo-prose">Lambdas can take parameters and capture multiple variables:</p>
+            <p class="frond-prose">Lambdas can take parameters and capture multiple variables:</p>
             <CodeBlock :code="closuresParams" />
-            <p class="kuzo-prose">Lambdas are first-class — store them in arrays and iterate:</p>
+            <p class="frond-prose">Lambdas are first-class — store them in arrays and iterate:</p>
             <CodeBlock :code="closuresStore" />
-            <p class="kuzo-prose">Lambdas can return other lambdas, enabling factory patterns:</p>
+            <p class="frond-prose">Lambdas can return other lambdas, enabling factory patterns:</p>
             <CodeBlock :code="closuresFactory" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Note</p>
-              <p class="kuzo-callout-text">A lambda that captures outer variables is sometimes called a "closure" — but in Kuzo there is only one concept: the lambda. A nested function (<code>fun name(params): T &#123; &#125;</code>) is just a lambda bound to a name.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">A lambda that captures outer variables is sometimes called a "closure" — but in Frond there is only one concept: the lambda. A nested function (<code>fun name(params): T &#123; &#125;</code>) is just a lambda bound to a name — and like any lambda, it cannot call itself, so recursive helpers must live at the top level.</p>
             </div>
           </section>
 
           <!-- 8. Generics -->
-          <section id="generics" class="kuzo-tutorial-section">
+          <section id="generics" class="frond-tutorial-section">
             <h2>Generics</h2>
-            <p class="kuzo-prose">Generics let you write functions that work with any type.</p>
+            <p class="frond-prose">Generics let you write functions that work with any type.</p>
             <CodeBlock :code="genericsIdentity" />
-            <p class="kuzo-prose">The type parameter <code>T</code> can be any type. The compiler ensures type safety at each call site.</p>
+            <p class="frond-prose">The type parameter <code>T</code> can be any type. The compiler ensures type safety at each call site.</p>
             <CodeBlock :code="genericsDoubleCast" />
-            <p class="kuzo-prose">Generics support multiple type parameters and generic types:</p>
+            <p class="frond-prose">Generics support multiple type parameters and generic types:</p>
             <CodeBlock :code="genericsMultiple" />
-            <p class="kuzo-prose">Generic functions can call other generic functions, and the compiler monomorphizes each instantiation for full type safety.</p>
+            <p class="frond-prose">Generic functions can call other generic functions, and the compiler monomorphizes each instantiation for full type safety.</p>
           </section>
 
           <!-- 9. Custom Types -->
-          <section id="custom-types" class="kuzo-tutorial-section">
+          <section id="custom-types" class="frond-tutorial-section">
             <h2>Custom Types</h2>
-            <p class="kuzo-prose">Kuzo has two ways to define custom types: algebraic data types (ADTs) for tagged unions, and records for grouped fields.</p>
+            <p class="frond-prose">Frond has two ways to define custom types: algebraic data types (ADTs) for tagged unions, and records for grouped fields.</p>
             <h3>Algebraic Data Types</h3>
             <CodeBlock :code="customTypesAdt" />
-            <p class="kuzo-prose">An ADT lists its variants after <code>|</code>. Pattern matching destructures each variant.</p>
+            <p class="frond-prose">An ADT lists its variants after <code>|</code>. Pattern matching destructures each variant.</p>
             <h3>Records</h3>
             <CodeBlock :code="customTypesRecord" />
-            <p class="kuzo-prose">Records group named fields. Construct by calling the type name with field values in order.</p>
-            <p class="kuzo-prose">Records support nullable fields, array fields, and mutation with <code>var</code>:</p>
+            <p class="frond-prose">Records group named fields. Construct by calling the type name with field values in order.</p>
+            <p class="frond-prose">Records support nullable fields, array fields, and mutation with <code>var</code>:</p>
             <CodeBlock :code="customTypesRecordNullable" />
             <CodeBlock :code="customTypesRecordMut" />
-            <p class="kuzo-prose">Records can be destructured in <code>match</code> with guards:</p>
+            <p class="frond-prose">Records can be destructured in <code>match</code> with guards:</p>
             <CodeBlock :code="customTypesDestructure" />
             <h3>Recursive Types</h3>
             <CodeBlock :code="customTypesRecursive" />
-            <p class="kuzo-prose">ADTs can be recursive — a <code>Tree</code> variant can contain other <code>Tree</code> values. This is ideal for linked structures like trees and linked lists.</p>
+            <p class="frond-prose">ADTs can be recursive — a <code>Tree</code> variant can contain other <code>Tree</code> values. This is ideal for linked structures like trees and linked lists.</p>
           </section>
 
           <!-- 10. Pattern Matching -->
-          <section id="patterns" class="kuzo-tutorial-section">
+          <section id="patterns" class="frond-tutorial-section">
             <h2>Pattern Matching</h2>
-            <p class="kuzo-prose">Pattern matching goes beyond simple value comparison. Kuzo supports or-patterns, guards, nested destructuring, and literal matching.</p>
+            <p class="frond-prose">Pattern matching goes beyond simple value comparison. Frond supports or-patterns, guards, nested destructuring, and literal matching.</p>
             <h3>Or-Patterns</h3>
             <CodeBlock :code="patternsOrPatterns" />
-            <p class="kuzo-prose">Use <code>|</code> to match multiple patterns in a single arm.</p>
+            <p class="frond-prose">Use <code>|</code> to match multiple patterns in a single arm.</p>
             <h3>Guards</h3>
             <CodeBlock :code="patternsGuards" />
-            <p class="kuzo-prose">Guards add a boolean condition with <code>if</code>. The arm only matches if the guard is true.</p>
+            <p class="frond-prose">Guards add a boolean condition with <code>if</code>. The arm only matches if the guard is true.</p>
             <h3>Nested Destructuring</h3>
             <CodeBlock :code="patternsNested" />
-            <p class="kuzo-prose">Patterns can nest arbitrarily deep, destructuring records inside records.</p>
+            <p class="frond-prose">Patterns can nest arbitrarily deep, destructuring records inside records.</p>
             <h3>Literal Patterns</h3>
             <CodeBlock :code="patternsLiteral" />
-            <p class="kuzo-prose">Match on string and char literals. Combine with or-patterns for multi-value matching.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Wildcards (<code>_</code>) ignore parts of a structure. Use <code>Node(v, _, _)</code> to extract only the value from a tree node.</p>
+            <p class="frond-prose">Match on string and char literals. Combine with or-patterns for multi-value matching.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Wildcards (<code>_</code>) ignore parts of a structure. Use <code>Node(v, _, _)</code> to extract only the value from a tree node.</p>
             </div>
           </section>
 
           <!-- 11. Traits -->
-          <section id="traits" class="kuzo-tutorial-section">
+          <section id="traits" class="frond-tutorial-section">
             <h2>Traits</h2>
-            <p class="kuzo-prose">Traits define shared behavior. Types implement traits to provide methods. A trait declares method signatures; types provide implementations.</p>
+            <p class="frond-prose">Traits define shared behavior. Types implement traits to provide methods. A trait declares method signatures; types provide implementations.</p>
             <CodeBlock :code="traitsShow" />
-            <p class="kuzo-prose">The <code>trait</code> keyword declares a trait. A type implements it by listing the trait name after <code>:</code> and providing method bodies inside <code>{ }</code>. The receiver is implicit — use <code>this</code> inside the method body to refer to the instance.</p>
-            <p class="kuzo-prose">Types can implement multiple traits:</p>
+            <p class="frond-prose">The <code>trait</code> keyword declares a trait. A type implements it by listing the trait name after <code>:</code> and providing method bodies inside <code>{ }</code>. The receiver is implicit — use <code>this</code> inside the method body to refer to the instance.</p>
+            <p class="frond-prose">Types can implement multiple traits:</p>
             <CodeBlock :code="traitsMultiple" />
-            <p class="kuzo-prose">List multiple traits in parentheses: <code>(Greet, Sizeable, Show)</code>. The <code>hello</code> method has a default implementation — types only need to implement <code>name</code>, and <code>hello</code> works automatically.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Default methods can call other trait methods. <code>hello</code> calls <code>name()</code>, which each type implements differently.</p>
+            <p class="frond-prose">List multiple traits in parentheses: <code>(Greet, Sizeable, Show)</code>. The <code>hello</code> method has a default implementation — types only need to implement <code>name</code>, and <code>hello</code> works automatically.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Default methods can call other trait methods. <code>hello</code> calls <code>name()</code>, which each type implements differently.</p>
             </div>
-            <p class="kuzo-prose">Default methods can chain — one default calls another, creating multi-layer behavior:</p>
+            <p class="frond-prose">Default methods can chain — one default calls another, creating multi-layer behavior:</p>
             <CodeBlock :code="traitsChain" />
-            <p class="kuzo-prose">Trait methods can take extra parameters beyond the implicit receiver, and can return new instances for chaining:</p>
+            <p class="frond-prose">Trait methods can take extra parameters beyond the implicit receiver, and can return new instances for chaining:</p>
             <CodeBlock :code="traitsCounter" />
-            <p class="kuzo-prose">Use <code>&amp;</code> before the method name to take the receiver by reference — the method can mutate the instance:</p>
+            <p class="frond-prose">Use <code>&amp;</code> before the method name to take the receiver by reference — the method can mutate the instance:</p>
             <CodeBlock :code="traitsMutRef" />
-            <p class="kuzo-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment.</p>
+            <p class="frond-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment.</p>
             <h3>Override &amp; super</h3>
-            <p class="kuzo-prose">Overriding a trait's default method requires the <code>override</code> keyword. Inside an override, <code>super.method()</code> calls the default implementation you replaced — the classic way to wrap default behavior:</p>
+            <p class="frond-prose">Overriding a trait's default method requires the <code>override</code> keyword. Inside an override, <code>super.method()</code> calls the default implementation you replaced — the classic way to wrap default behavior:</p>
             <CodeBlock :code="traitsOverride" />
-            <p class="kuzo-prose"><code>this</code> and <code>super</code> form one system — two views of the same receiver. <code>this.m()</code> (and the bare <code>m()</code>) dispatches dynamically from the top: the type's own override wins, the trait default is the fallback. <code>super.m()</code> dispatches statically to the bound trait default, skipping the override.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">They point in opposite directions: a default method calling <code>this.m()</code> reaches <em>down</em> into the type's override (the template-method pattern), while an override calling <code>super.m()</code> reaches <em>up</em> into the default it replaced.</p>
+            <p class="frond-prose"><code>this</code> and <code>super</code> form one system — two views of the same receiver. <code>this.m()</code> (and the bare <code>m()</code>) dispatches dynamically from the top: the type's own override wins, the trait default is the fallback. <code>super.m()</code> dispatches statically to the bound trait default, skipping the override.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">They point in opposite directions: a default method calling <code>this.m()</code> reaches <em>down</em> into the type's override (the template-method pattern), while an override calling <code>super.m()</code> reaches <em>up</em> into the default it replaced.</p>
             </div>
-            <p class="kuzo-prose"><code>super</code> is a layer view, not a value — it works for any method name, always targeting that method's default on the current type:</p>
+            <p class="frond-prose"><code>super</code> is a layer view, not a value — it works for any method name, always targeting that method's default on the current type:</p>
             <CodeBlock :code="traitsSuperLayer" />
             <h3>Resolving Method Conflicts</h3>
-            <p class="kuzo-prose">When a type implements several traits that provide same-named default methods, the conflict must be resolved at the declaration site — with a delegate or an explicit override. Leaving it unresolved is a compile error:</p>
+            <p class="frond-prose">When a type implements several traits that provide same-named default methods, the conflict must be resolved at the declaration site — with a delegate or an explicit override. Leaving it unresolved is a compile error:</p>
             <CodeBlock :code="traitsDelegate" />
-            <p class="kuzo-prose">The delegate syntax <code>fun m(): str = A.m</code> binds the method slot to trait <code>A</code>'s default. To override <em>and</em> choose which default <code>super</code> targets, combine the binding with a body:</p>
+            <p class="frond-prose">The delegate syntax <code>fun m(): str = A.m</code> binds the method slot to trait <code>A</code>'s default. To override <em>and</em> choose which default <code>super</code> targets, combine the binding with a body:</p>
             <CodeBlock :code="traitsBindAndBody" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Note</p>
-              <p class="kuzo-callout-text">With a unique provider the binding is implicit — plain <code>override fun m()</code> is enough. The <code>= Trait.m</code> annotation is only required when several traits offer same-named defaults.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">With a unique provider the binding is implicit — plain <code>override fun m()</code> is enough. The <code>= Trait.m</code> annotation is only required when several traits offer same-named defaults.</p>
             </div>
           </section>
 
           <!-- 12. Nullable Types -->
-          <section id="nullable" class="kuzo-tutorial-section">
+          <section id="nullable" class="frond-tutorial-section">
             <h2>Nullable Types</h2>
-            <p class="kuzo-prose">Kuzo has explicit nullable types. Append <code>?</code> to any type to make it nullable — it can hold <code>null</code> or a value of the base type.</p>
+            <p class="frond-prose">Frond has explicit nullable types. Append <code>?</code> to any type to make it nullable — it can hold <code>null</code> or a value of the base type.</p>
             <CodeBlock :code="nullableBasic" />
-            <p class="kuzo-prose">Use <code>??</code> (coalescing) to provide a default for null values:</p>
+            <p class="frond-prose">Use <code>??</code> (coalescing) to provide a default for null values:</p>
             <CodeBlock :code="nullableCoalesce" />
-            <p class="kuzo-prose"><code>??</code> returns the first non-null value. Chain multiple <code>??</code> for fallback sequences.</p>
-            <p class="kuzo-prose">Use <code>!</code> to assert non-null (panics if null) and <code>?.</code> for safe field access:</p>
+            <p class="frond-prose"><code>??</code> returns the first non-null value. Chain multiple <code>??</code> for fallback sequences.</p>
+            <p class="frond-prose">Use <code>!</code> to assert non-null (panics if null) and <code>?.</code> for safe field access:</p>
             <CodeBlock :code="nullableSafeAccess" />
-            <p class="kuzo-prose"><code>?.</code> short-circuits to <code>null</code> if any link in the chain is null. <code>!</code> unwraps a non-null value — use it when you're certain the value exists.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Prefer <code>??</code> for safe defaults. Use <code>!</code> sparingly — it's an assertion that crashes if the value is null.</p>
+            <p class="frond-prose"><code>?.</code> short-circuits to <code>null</code> if any link in the chain is null. <code>!</code> unwraps a non-null value — use it when you're certain the value exists.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Prefer <code>??</code> for safe defaults. Use <code>!</code> sparingly — it's an assertion that crashes if the value is null.</p>
             </div>
           </section>
 
           <!-- 13. Newtype -->
-          <section id="newtype" class="kuzo-tutorial-section">
+          <section id="newtype" class="frond-tutorial-section">
             <h2>Newtype</h2>
-            <p class="kuzo-prose">Newtype creates a type-safe wrapper around an existing type. Even if two newtypes share the same underlying type, they are not interchangeable.</p>
+            <p class="frond-prose">Newtype creates a type-safe wrapper around an existing type. Even if two newtypes share the same underlying type, they are not interchangeable.</p>
             <CodeBlock :code="newtypeBasic" />
-            <p class="kuzo-prose">You can't accidentally pass <code>Celsius</code> where <code>Fahrenheit</code> is expected — the compiler enforces type safety even though both wrap <code>f64</code>.</p>
-            <p class="kuzo-prose">Unwrap newtype values with pattern matching:</p>
+            <p class="frond-prose">You can't accidentally pass <code>Celsius</code> where <code>Fahrenheit</code> is expected — the compiler enforces type safety even though both wrap <code>f64</code>.</p>
+            <p class="frond-prose">Unwrap newtype values with pattern matching:</p>
             <CodeBlock :code="newtypeUnwrap" />
-            <p class="kuzo-prose">Newtypes are great for domain modeling — <code>UserId</code>, <code>Email</code>, <code>Meters</code> — without the overhead of a full record.</p>
+            <p class="frond-prose">Newtypes are great for domain modeling — <code>UserId</code>, <code>Email</code>, <code>Meters</code> — without the overhead of a full record.</p>
             <CodeBlock :code="newtypeDomain" />
           </section>
 
           <!-- 14. Type Casting -->
-          <section id="casting" class="kuzo-tutorial-section">
+          <section id="casting" class="frond-tutorial-section">
             <h2>Type Casting</h2>
-            <p class="kuzo-prose">Use <code>value as Type</code> to convert between types. Kuzo supports widening, narrowing, and cross-category conversions.</p>
+            <p class="frond-prose">Use <code>value as Type</code> to convert between types. Frond supports widening, narrowing, and cross-category conversions.</p>
             <CodeBlock label="Widening" :code="castingWidening" />
             <CodeBlock label="Narrowing with wrapping" :code="castingNarrowing" />
-            <p class="kuzo-prose">Narrowing casts wrap around — <code>300i32</code> to <code>i8</code> gives <code>44</code> (300 mod 256 - 256).</p>
+            <p class="frond-prose">Narrowing casts wrap around — <code>300i32</code> to <code>i8</code> gives <code>44</code> (300 mod 256).</p>
             <CodeBlock label="Int &harr; Float" :code="castingIntFloat" />
-            <p class="kuzo-prose">Float-to-int truncates (3.99 becomes 3). Int-to-float is exact for representable values.</p>
+            <p class="frond-prose">Float-to-int truncates (3.99 becomes 3). Int-to-float is exact for representable values.</p>
             <CodeBlock label="Char &harr; Int" :code="castingCharInt" />
             <CodeBlock label="Int &rarr; Str" :code="castingIntStr" />
-            <p class="kuzo-prose">Cast to <code>str</code> converts any primitive to its string representation. <code>true as str</code> returns <code>"true"</code>.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Chain casts for complex conversions: <code>65i32 as i64 as i8</code>.</p>
+            <p class="frond-prose">Cast to <code>str</code> converts any primitive to its string representation. <code>true as str</code> returns <code>"true"</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Chain casts for complex conversions: <code>65i32 as i64 as i8</code>.</p>
             </div>
           </section>
 
           <!-- 15. Operators -->
-          <section id="operators" class="kuzo-tutorial-section">
+          <section id="operators" class="frond-tutorial-section">
             <h2>Operators</h2>
-            <p class="kuzo-prose">Kuzo supports standard arithmetic, comparison, logical, and bitwise operators.</p>
+            <p class="frond-prose">Frond supports standard arithmetic, comparison, logical, and bitwise operators.</p>
             <h3>Arithmetic</h3>
             <CodeBlock :code="operatorsArithmetic" />
-            <p class="kuzo-prose">Operator precedence follows standard math rules: <code>*</code> and <code>/</code> before <code>+</code> and <code>-</code>. Integer division truncates toward zero.</p>
+            <p class="frond-prose">Operator precedence follows standard math rules: <code>*</code> and <code>/</code> before <code>+</code> and <code>-</code>. Integer division truncates toward zero.</p>
             <h3>Comparison &amp; Logical</h3>
             <CodeBlock :code="operatorsComparison" />
             <h3>Bitwise</h3>
             <CodeBlock :code="operatorsBitwise" />
-            <p class="kuzo-prose">Bitwise operators work on integer types. Hex (<code>0xFF</code>), binary (<code>0b1010</code>), and octal (<code>0o777</code>) literals are supported.</p>
+            <p class="frond-prose">Bitwise operators work on integer types. Hex (<code>0xFF</code>), binary (<code>0b1010</code>), and octal (<code>0o777</code>) literals are supported.</p>
             <CodeBlock :code="operatorsLiterals" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Bitwise <code>&amp;</code> has higher precedence than <code>|</code>, matching C convention. Use parentheses for clarity.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Bitwise <code>&amp;</code> has higher precedence than <code>|</code>, matching C convention. Use parentheses for clarity.</p>
             </div>
           </section>
 
           <!-- 16. Error Handling -->
-          <section id="error-handling" class="kuzo-tutorial-section">
+          <section id="error-handling" class="frond-tutorial-section">
             <h2>Error Handling</h2>
-            <p class="kuzo-prose">Kuzo uses <code>Throw&lt;T, E&gt;</code> types for explicit error handling.</p>
+            <p class="frond-prose">Frond uses <code>Throw&lt;T, E&gt;</code> types for explicit error handling.</p>
             <CodeBlock :code="errorHandlingSafeDiv" />
-            <p class="kuzo-prose">The return type <code>Throw&lt;i32, Error&gt;</code> tells callers that this function either succeeds with an <code>i32</code> or fails with an <code>Error</code>.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Unlike exceptions in other languages, Kuzo errors are visible in the function signature. You always know what can go wrong.</p>
+            <p class="frond-prose">The return type <code>Throw&lt;i32, Error&gt;</code> tells callers that this function either succeeds with an <code>i32</code> or fails with an <code>Error</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Unlike exceptions in other languages, Frond errors are visible in the function signature. You always know what can go wrong.</p>
             </div>
-            <p class="kuzo-prose">Use <code>?</code> to propagate errors — if the expression fails, the function returns immediately with the error:</p>
+            <p class="frond-prose">Use <code>?</code> to propagate errors — if the expression fails, the function returns immediately with the error:</p>
             <CodeBlock :code="errorHandlingPropagate" />
-            <p class="kuzo-prose">Define error subtypes with <code>: Err</code> for granular error matching:</p>
+            <p class="frond-prose">Define error subtypes with <code>: Err</code> for domain-specific errors. Every subtype must carry a <code>msg: str</code> field:</p>
             <CodeBlock :code="errorHandlingSubtypes" />
-            <p class="kuzo-prose">Match on different error subtypes in multiple arms:</p>
+            <p class="frond-prose">At the match site, <code>Error(e)</code> binds the error value — read its message with <code>e.msg</code>:</p>
             <CodeBlock :code="errorHandlingMatch" />
-            <p class="kuzo-prose">Use <code>??</code> to provide defaults for <code>Throw</code> values, just like nullable types:</p>
+            <p class="frond-prose">Use <code>??</code> to provide defaults for <code>Throw</code> values, just like nullable types:</p>
             <CodeBlock :code="errorHandlingCoalesce" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text"><code>throw</code> can throw any type — not just <code>Error</code>. Use <code>throw 42</code> or <code>throw "message"</code> for lightweight error signaling.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text"><code>throw</code> can throw any type — not just <code>Error</code>. Use <code>throw 42</code> or <code>throw "message"</code> for lightweight error signaling.</p>
             </div>
           </section>
 
           <!-- 17. Async & Channels -->
-          <section id="async" class="kuzo-tutorial-section">
+          <section id="async" class="frond-tutorial-section">
             <h2>Async &amp; Channels</h2>
-            <p class="kuzo-prose">Kuzo has built-in async/await support and typed channels for concurrent programming.</p>
+            <p class="frond-prose">Frond has built-in async/await support and typed channels for concurrent programming.</p>
             <CodeBlock label="Async functions" :code="asyncFetch" />
-            <p class="kuzo-prose">The <code>async</code> keyword marks a function as asynchronous. <code>await()</code> suspends execution until the operation completes. <code>Async&lt;T&gt;</code> is the return type for async functions.</p>
+            <p class="frond-prose">The <code>async</code> keyword marks a function as asynchronous. <code>await()</code> suspends execution until the operation completes. <code>Async&lt;T&gt;</code> is the return type for async functions.</p>
             <CodeBlock label="Channels" :code="asyncChannels" />
-            <p class="kuzo-prose">Channels are typed communication pipes between concurrent tasks. <code>channel&lt;i32&gt;(2)</code> creates a buffered channel that holds up to 2 integers. <code>send</code> writes a value, <code>recv</code> reads one.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Channels make concurrent code safe — no shared mutable state, just message passing.</p>
+            <p class="frond-prose">Channels are typed communication pipes between concurrent tasks. <code>channel&lt;i32&gt;(2)</code> creates a buffered channel that holds up to 2 integers. <code>send</code> writes a value, <code>recv</code> reads one.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Channels make concurrent code safe — no shared mutable state, just message passing.</p>
             </div>
-            <p class="kuzo-prose">Async functions can chain — one async function can <code>await</code> another:</p>
+            <p class="frond-prose">Async functions can chain — one async function can <code>await</code> another:</p>
             <CodeBlock :code="asyncChain" />
-            <p class="kuzo-prose">Channels work with any type — records, ADTs, nullable values, and more:</p>
+            <p class="frond-prose">Channels work with any type — records, ADTs, nullable values, and more:</p>
             <CodeBlock :code="asyncChannelsTypes" />
           </section>
 
           <!-- 18. Defer -->
-          <section id="defer" class="kuzo-tutorial-section">
+          <section id="defer" class="frond-tutorial-section">
             <h2>Defer</h2>
-            <p class="kuzo-prose"><code>defer</code> schedules a statement to run when the function exits, regardless of how it exits. Deferred statements run in LIFO (last-in, first-out) order.</p>
+            <p class="frond-prose"><code>defer</code> schedules a statement to run when the function exits, regardless of how it exits. Deferred statements run in LIFO (last-in, first-out) order.</p>
             <CodeBlock :code="deferBasic" />
-            <p class="kuzo-prose">When <code>process</code> is called, it prints: <code>working</code>, then <code>second cleanup</code>, then <code>cleanup</code>. The last deferred statement runs first.</p>
-            <p class="kuzo-prose">Defer is useful for resource cleanup:</p>
+            <p class="frond-prose">When <code>process</code> is called, it prints: <code>working</code>, then <code>second cleanup</code>, then <code>cleanup</code>. The last deferred statement runs first.</p>
+            <p class="frond-prose">Defer is useful for resource cleanup:</p>
             <CodeBlock :code="deferCleanup" />
-            <p class="kuzo-prose">No matter how <code>readFile</code> exits — normal return, early return, or error — the channel is always closed.</p>
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Deferred statements capture variable values at the time of execution, not at the time of <code>defer</code>. If a variable changes after <code>defer</code>, the deferred statement sees the new value.</p>
+            <p class="frond-prose">No matter how <code>readFile</code> exits — normal return, early return, or error — the channel is always closed.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Deferred statements capture variable values at the time of execution, not at the time of <code>defer</code>. If a variable changes after <code>defer</code>, the deferred statement sees the new value.</p>
             </div>
-            <p class="kuzo-prose">Defer runs even when a function exits via <code>throw</code> — making it ideal for cleanup in error paths:</p>
+            <p class="frond-prose">Defer runs even when a function exits via <code>throw</code> — making it ideal for cleanup in error paths:</p>
             <CodeBlock :code="deferError" />
-            <p class="kuzo-prose">In recursive functions, each call's defers execute in LIFO order as the stack unwinds:</p>
+            <p class="frond-prose">In recursive functions, each call's defers execute in LIFO order as the stack unwinds:</p>
             <CodeBlock :code="deferRecurse" />
           </section>
 
           <!-- 19. Strings -->
-          <section id="strings" class="kuzo-tutorial-section">
+          <section id="strings" class="frond-tutorial-section">
             <h2>Strings</h2>
-            <p class="kuzo-prose">Kuzo supports string interpolation with <code>{}</code> syntax. Any expression can be embedded inside a string.</p>
+            <p class="frond-prose">Frond supports string interpolation with <code>{}</code> syntax. Any expression can be embedded inside a string.</p>
             <CodeBlock :code="stringsInterpolation" />
-            <p class="kuzo-prose">Place expressions inside <code>{}</code> within a string literal. Kuzo evaluates them at runtime and converts the result to a string.</p>
+            <p class="frond-prose">Place expressions inside <code>{}</code> within a string literal. Frond evaluates them at runtime and converts the result to a string.</p>
             <h3>String Operations</h3>
-            <p class="kuzo-prose">Strings support indexing, length, concatenation, and comparison:</p>
+            <p class="frond-prose">Strings support indexing, length, concatenation, and comparison:</p>
             <CodeBlock :code="stringsOperations" />
-            <p class="kuzo-prose">String comparison is lexicographic and Unicode-aware:</p>
+            <p class="frond-prose">String comparison is lexicographic and Unicode-aware:</p>
             <CodeBlock :code="stringsComparison" />
             <h3>Escape Sequences</h3>
             <CodeBlock :code="stringsEscapes" />
             <h3>Unicode Support</h3>
-            <p class="kuzo-prose">Strings are Unicode-aware. Indexing returns a <code>char</code> by codepoint:</p>
+            <p class="frond-prose">Strings are Unicode-aware. Indexing returns a <code>char</code> by codepoint:</p>
             <CodeBlock :code="stringsUnicode" />
-            <div class="kuzo-callout">
-              <p class="kuzo-callout-label">Tip</p>
-              <p class="kuzo-callout-text">Nullable strings work with <code>??</code>: <code>(nullableStr ?? "default")</code> provides a fallback for <code>null</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text">Nullable strings work with <code>??</code>: <code>(nullableStr ?? "default")</code> provides a fallback for <code>null</code>.</p>
             </div>
           </section>
 
-          <!-- 20. Next Steps -->
-          <section id="next-steps" class="kuzo-tutorial-section">
-            <h2>Next Steps</h2>
-            <p class="kuzo-prose">You now know the basics of Kuzo. Here's what to explore next:</p>
-            <ol class="kuzo-next-list">
-              <li>Read the full Language Tour for advanced features</li>
-              <li>Try the CLI commands — <code>kuzo debug</code> shows compilation stages</li>
-              <li>Build a real project with <code>kuzo init</code> and experiment</li>
-              <li>Explore generics and ADTs in depth</li>
+          <!-- 20. Modules & Imports -->
+          <section id="modules" class="frond-tutorial-section">
+            <h2>Modules &amp; Imports</h2>
+            <p class="frond-prose">Frond ships a standard library organized into packs. Import a pack with <code>import std.&lt;pack&gt;.&lt;module&gt;</code>:</p>
+            <CodeBlock :code="modulesBasic" />
+            <p class="frond-prose">Some names clash across packs — for example <code>File.chmod</code> and <code>Fs.chmod</code>. Import a single function under an alias to keep call sites unambiguous:</p>
+            <CodeBlock :code="modulesSelective" />
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">Console output (<code>println</code>, <code>print</code>, <code>eprintln</code>), <code>Timer</code>, and the error types (<code>Ok</code>, <code>Error</code>, <code>Throw</code>) are built in — no import needed.</p>
+            </div>
+            <p class="frond-prose">The standard library covers:</p>
+            <ol class="frond-next-list">
+              <li><code>std.io</code> — <code>Console</code>, <code>File</code>, <code>Dir</code>, <code>Fs</code>, <code>Reader</code>, <code>Writer</code></li>
+              <li><code>std.os</code> — <code>Env</code>, <code>Info</code>, <code>Os</code>, <code>Proc</code>, <code>Tty</code></li>
+              <li><code>std.time</code> — timers and clocks (e.g. <code>Timer</code>)</li>
+              <li><code>std.net</code>, <code>std.str</code>, <code>std.iter</code>, <code>std.reflect</code> — raw sockets, string helpers, iterators, runtime reflection</li>
             </ol>
-            <p class="kuzo-next-closing">Happy coding with Kuzo.</p>
           </section>
-        </div><!-- /.kuzo-content -->
-      </div><!-- /.kuzo-tutorial-grid -->
-    </div><!-- /.kuzo-container -->
+
+          <!-- 21. Next Steps -->
+          <section id="next-steps" class="frond-tutorial-section">
+            <h2>Next Steps</h2>
+            <p class="frond-prose">You now know the basics of Frond. Here's what to explore next:</p>
+            <ol class="frond-next-list">
+              <li>Read the full Language Tour for advanced features</li>
+              <li>Try the CLI commands — <code>frond debug</code> shows compilation stages</li>
+              <li>Build a real project with <code>frond init</code> and experiment</li>
+              <li>Explore generics and ADTs in depth</li>
+              <li>Browse the standard library — <code>std.io</code>, <code>std.os</code>, and beyond</li>
+            </ol>
+            <p class="frond-next-closing">Happy coding with Frond.</p>
+          </section>
+        </div><!-- /.frond-content -->
+      </div><!-- /.frond-tutorial-grid -->
+    </div><!-- /.frond-container -->
   </main>
 </template>
