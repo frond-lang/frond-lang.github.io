@@ -658,9 +658,9 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
           <section id="hello-world" class="frond-tutorial-section">
             <h2>Hello World</h2>
             <p class="frond-prose">Every Frond program starts with a <code>main</code> function. Let's create your first program.</p>
-            <p class="frond-prose frond-prose-muted">Running <code>frond init myapp</code> creates a new project with <code>src/Main.kz</code> as the entry point.</p>
+            <p class="frond-prose frond-prose-muted">Running <code>frond init myapp</code> creates a new project with <code>src/Main.frond</code> as the entry point.</p>
             <CodeBlock label="bash" :code="helloWorldBash" />
-            <CodeBlock label="src/Main.kz" :code="helloWorldMain" />
+            <CodeBlock label="src/Main.frond" :code="helloWorldMain" />
             <p class="frond-prose">The <code>fun</code> keyword declares a function. <code>main</code> is the entry point — it takes no arguments and returns <code>void</code>. <code>println</code> prints a line to stdout.</p>
             <div class="frond-callout">
               <p class="frond-callout-label">Tip</p>

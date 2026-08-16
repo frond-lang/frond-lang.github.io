@@ -28,11 +28,11 @@ const features: Feature[] = [
 
 const cliCommands = [
   { cmd: 'frond init [name]', desc: 'Scaffold a new project' },
-  { cmd: 'frond build [-O N]', desc: 'Compile to .kzo (-O 0..3, default 2)' },
+  { cmd: 'frond build [-O N]', desc: 'Compile to .fndo (-O 0..3, default 2)' },
   { cmd: 'frond run [-O N]', desc: 'Compile and run' },
-  { cmd: 'frond run <file.kzo>', desc: 'Execute a compiled artifact' },
+  { cmd: 'frond run <file.fndo>', desc: 'Execute a compiled artifact' },
   { cmd: 'frond debug --stage S', desc: 'Diagnostics (tokens/ast/check/emit-c/emit-ffi/full)' },
-  { cmd: 'frond inspect <file.kzo>', desc: 'Inspect .kzo metadata' },
+  { cmd: 'frond inspect <file.fndo>', desc: 'Inspect .fndo metadata' },
 ]
 
 const quickStartCode = `# Create a new project
@@ -45,11 +45,11 @@ frond run
 # Or compile only
 frond build
 # Execute the artifact
-frond run out/myapp.kzo`
+frond run out/myapp.fndo`
 
 const projectLayout = `myapp/
-├── frond.toml      # Project manifest
-└── src/Main.kz    # Entry point`
+├── Root.toml        # Project manifest
+└── src/Main.frond   # Entry point`
 
 const mainCode = `fun main(): void {
     println("Hello, Frond!")
@@ -100,7 +100,7 @@ const stringCode = `println("sum = {1 + 2}, point = {p}")`
         <p class="frond-hero-tagline">A statically typed programming language</p>
         <p class="frond-hero-desc">
           Write expressive, type-safe code with generics, algebraic data types, pattern matching,
-          and built-in async channels. Compile to cross-platform .kzo binaries.
+          and built-in async channels. Compile to cross-platform .fndo binaries.
         </p>
         <div class="frond-hero-ctas">
           <RouterLink to="/#quick-start" class="frond-btn frond-btn-primary">Quick Start</RouterLink>
@@ -135,7 +135,7 @@ const stringCode = `println("sum = {1 + 2}, point = {p}")`
             <CodeBlock :code="projectLayout" />
           </div>
           <div>
-            <p class="frond-code-label">src/Main.kz</p>
+            <p class="frond-code-label">src/Main.frond</p>
             <CodeBlock :code="mainCode" />
           </div>
         </div>
