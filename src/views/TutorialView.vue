@@ -89,9 +89,10 @@ val nan: f64 = 0.0f64 / 0.0f64
 
 // NaN never equals itself
 val check = nan != nan  // true`
-const variablesNumberLiterals = `val hex = 0xFF       // 255
-val bin = 0b1010     // 10
-val oct = 0o777      // 511`
+const variablesNumberLiterals = `val hex = 0xFF           // 255
+val bin = 0b1010         // 10
+val oct = 0o777          // 511
+val grouped = 1_000_000  // underscores group digits`
 const functionsBasic = `fun add(a: i32, b: i32): i32 {
     a + b
 }
@@ -159,6 +160,9 @@ val nested = [[1, 2], [3, 4]]
 val grid = nested[0][1]`
 const arraysEmpty = `val empty: i32[] = []
 val built = empty ++ [1, 2, 3]`
+const arraysFill = `// [value, ..count] creates count copies of value
+val buf: u8[] = [0, ..32]   // 32 zeroes — a fresh 32-byte buffer
+val ones: i32[] = [1, ..3]  // [1, 1, 1]`
 const closuresBasic = `val x: i32 = 10
 val read = fun(): i32 { x }
 val result = read()`
@@ -501,8 +505,8 @@ fun pipeline(a: i32): Throw<i32, Error> {
     val r1 = step1(a)?   // propagates error if step1 fails
     Ok(r1 * 2)
 }`
-const errorHandlingSubtypes = `type NotFound: Err = NotFound(msg: str)
-type Timeout: Err = Timeout(msg: str)
+const errorHandlingSubtypes = `type NotFound: Err = NotFound(message: str)
+type Timeout: Err = Timeout(message: str)
 
 fun lookup(id: i32): Throw<str, Error> {
     if id < 0 { throw NotFound("negative id") }
@@ -511,12 +515,12 @@ fun lookup(id: i32): Throw<str, Error> {
 }`
 const errorHandlingMatch = `match lookup(-1) {
     Ok(name) => println("found: {name}")
-    Error(e) => println("failed: {e.msg}")  // "failed: negative id"
+    Error(e) => println("failed: {e.message}")  // "failed: negative id"
 }`
 const errorHandlingCoalesce = `val result = safeDiv(10, 0) ?? -1
 // result = -1 (safeDiv throws, ?? provides default)`
 const asyncFetch = `async fun fetch(): Async<i32> {
-    Timer(1).await()
+    Timer(50_000_000).await()  // suspend for 50ms (nanoseconds)
     42
 }`
 const asyncChannels = `val ch = channel<i32>(2)
@@ -527,7 +531,7 @@ ch.send(20)
 val first = ch.recv()   // 10
 val second = ch.recv()  // 20`
 const asyncChain = `async fun fetchValue(): Async<i32> {
-    Timer(1).await()
+    Timer(50_000_000).await()  // 50ms
     42
 }
 
@@ -555,10 +559,15 @@ const deferBasic = `fun process(): void {
     defer println("second cleanup")
     println("working")
 }`
-const deferCleanup = `fun readFile(path: str): str {
-    val ch = open(path)
-    defer ch.close()
-    ch.read()
+const deferCleanup = `import std.io.Buffered
+import std.io.File
+import std.io.Path
+
+fun readFile(path: Path): Async<Throw<str, IOError>> {
+    val f = File.open(path, File.read_only()).await()?
+    defer f.close().await()
+    val reader = Buffered.new_reader(f)
+    reader.read_to_string().await()?
 }`
 const deferError = `fun riskyOp(): Throw<i32, Error> {
     defer println("cleanup always runs")
@@ -579,7 +588,8 @@ println("sum = {1 + 2}")
 println("point = {Point(3, 4)}")`
 const stringsOperations = `val s = "hello"
 val first = s[0]      // 'h' (char)
-val len = s.len()      // 5
+val len = s.len()      // 5 (Unicode chars)
+val raw = s.bytes()    // u8[] — the raw UTF-8 bytes
 val concat = "ab" + "cd"  // "abcd"
 val mixed = "n=" + 42    // "n=42" (str + int)`
 const stringsComparison = `val a = "apple" < "banana"  // true
@@ -596,16 +606,68 @@ val first = emoji[0]    // '😀'
 
 val cjk = "你好"
 val ch = cjk[0]         // '你'`
+const stringsHelpers = `import std.core.types
+
+val parts = Str.split("a,b,c", ",")         // ["a", "b", "c"]
+val clean = Str.trim("  hi  ")              // "hi"
+val hit = Str.contains("hello", "ell")      // true
+val at = Str.index_of("hello", "ell")       // 1 (byte offset)
+val loud = Str.to_upper_ascii("abc!")       // "ABC!"
+val dashed = Str.replace("a,b", ",", "-")   // "a-b"`
+const stringsParse = `import std.core.types
+
+val n = I32.parse("42")        // 42 — null when the text is malformed
+val x = F64.parse("3.5")       // 3.5
+val flag = Bool.parse("true")  // true
+
+val max = I32.MAX              // 2147483647
+val min = I32.MIN              // -2147483648`
 const modulesBasic = `import std.os.Env
 
 fun main(): void {
-    Env.set("GREETING", "hello")
-    val greeting = Env.get("GREETING")
-    println(greeting)  // "hello"
+    match Env.set("GREETING", "hello") {
+        Ok(_) => println("set ok"),
+        Error(e) => println("set failed: {e.message}"),
+    }
+    println(Env.get("GREETING"))  // "hello" ("" when the key is not set)
 }`
+const modulesIo = `import std.io.Fs
+import std.io.Path
+
+fun main(): void {
+    val path = Path.from("data").join_str("notes.txt")
+    match Fs.read_file(path).await() {
+        Ok(text) => println(text),
+        Error(e) => println("read failed: {e.message}"),
+    }
+}`
+const modulesRand = `import std.rand.Rand
+
+Rand.seed(42)                  // same seed → same sequence
+val dice = Rand.range(1, 6)    // integer in [1, 6], both ends inclusive
+val coin = Rand.next_f64()     // float in [0, 1)`
 const modulesSelective = `import std.io.File.{remove as delete_file}
 
-// delete_file("old.txt") now calls File.remove`
+// delete_file(Path.from("old.txt")) now calls File.remove`
+const visibilityModule = `// src/Counter.frond — a module of your own
+type Counter = Counter(count: i32) {
+    pub fun current(): i32 { count }
+    pub fun &increment(): void { count = count + 1 }
+}
+
+// Factory: the module constructs the private-field type for callers
+pub fun from(start: i32): Counter { Counter(start) }`
+const visibilityClient = `// src/Main.frond
+import Counter
+
+fun main(): void {
+    val c = Counter.from(10)
+    c.increment()
+    println(c.current())   // 11
+
+    // val x = Counter(5)  // error: constructor has private fields
+    // val n = c.count     // error: field 'Counter.count' is private
+}`
 </script>
 
 <template>
@@ -760,6 +822,13 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
               <p class="frond-callout-label">Tip</p>
               <p class="frond-callout-text">Use explicit type annotations (<code>i32[]</code>) for empty arrays since the compiler can't infer the element type.</p>
             </div>
+            <h3>Fill Syntax</h3>
+            <CodeBlock :code="arraysFill" />
+            <p class="frond-prose">The fill form <code>[value, ..count]</code> allocates a new array of <code>count</code> copies — the idiomatic way to preallocate buffers.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">Arithmetic operators do not broadcast to arrays — <code>[1, 2] + [3, 4]</code> is a compile error. Use a loop for element-wise math; <code>++</code> only concatenates.</p>
+            </div>
           </section>
 
           <!-- 7. Lambda & Nested Functions -->
@@ -813,6 +882,10 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <h3>Records</h3>
             <CodeBlock :code="customTypesRecord" />
             <p class="frond-prose">Records group named fields. Construct by calling the type name with field values in order.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">Fields and methods are private to their module by default — it doesn't matter in these single-file examples, but mark them <code>pub</code> to use them from other modules (see <a href="#modules">Modules &amp; Imports</a>).</p>
+            </div>
             <p class="frond-prose">Records support nullable fields, array fields, and mutation with <code>var</code>:</p>
             <CodeBlock :code="customTypesRecordNullable" />
             <CodeBlock :code="customTypesRecordMut" />
@@ -864,7 +937,7 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <CodeBlock :code="traitsCounter" />
             <p class="frond-prose">Use <code>&amp;</code> before the method name to take the receiver by reference — the method can mutate the instance:</p>
             <CodeBlock :code="traitsMutRef" />
-            <p class="frond-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment.</p>
+            <p class="frond-prose">Without <code>&amp;</code>, the method receives the instance by value (read-only). With <code>&amp;</code>, mutations like <code>this.count = ...</code> persist. Use <code>this</code> when you need to explicitly reference the receiver, e.g. for assignment. Methods implementing a trait inherit the trait's declared visibility — an override of a pub trait method stays callable across modules without re-declaring <code>pub</code>; a type's own methods default to module-private (see <a href="#modules">Modules &amp; Imports</a>).</p>
             <h3>Override &amp; super</h3>
             <p class="frond-prose">Overriding a trait's default method requires the <code>override</code> keyword. Inside an override, <code>super.method()</code> calls the default implementation you replaced — the classic way to wrap default behavior:</p>
             <CodeBlock :code="traitsOverride" />
@@ -964,9 +1037,9 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             </div>
             <p class="frond-prose">Use <code>?</code> to propagate errors — if the expression fails, the function returns immediately with the error:</p>
             <CodeBlock :code="errorHandlingPropagate" />
-            <p class="frond-prose">Define error subtypes with <code>: Err</code> for domain-specific errors. Every subtype must carry a <code>msg: str</code> field:</p>
+            <p class="frond-prose">Define error subtypes with <code>: Err</code> for domain-specific errors. Every subtype must carry a <code>message: str</code> field:</p>
             <CodeBlock :code="errorHandlingSubtypes" />
-            <p class="frond-prose">At the match site, <code>Error(e)</code> binds the error value — read its message with <code>e.msg</code>:</p>
+            <p class="frond-prose">At the match site, <code>Error(e)</code> binds the error value — read its message with <code>e.message</code>:</p>
             <CodeBlock :code="errorHandlingMatch" />
             <p class="frond-prose">Use <code>??</code> to provide defaults for <code>Throw</code> values, just like nullable types:</p>
             <CodeBlock :code="errorHandlingCoalesce" />
@@ -981,7 +1054,7 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <h2>Async &amp; Channels</h2>
             <p class="frond-prose">Frond has built-in async/await support and typed channels for concurrent programming.</p>
             <CodeBlock label="Async functions" :code="asyncFetch" />
-            <p class="frond-prose">The <code>async</code> keyword marks a function as asynchronous. <code>await()</code> suspends execution until the operation completes. <code>Async&lt;T&gt;</code> is the return type for async functions.</p>
+            <p class="frond-prose">The <code>async</code> keyword marks a function as asynchronous. <code>await()</code> suspends execution until the operation completes. <code>Async&lt;T&gt;</code> is the return type for async functions. <code>Timer(n)</code> sleeps for <code>n</code> nanoseconds — a 1-second sleep is <code>Timer(1_000_000_000).await()</code>.</p>
             <CodeBlock label="Channels" :code="asyncChannels" />
             <p class="frond-prose">Channels are typed communication pipes between concurrent tasks. <code>channel&lt;i32&gt;(2)</code> creates a buffered channel that holds up to 2 integers. <code>send</code> writes a value, <code>recv</code> reads one.</p>
             <div class="frond-callout">
@@ -1002,7 +1075,7 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <p class="frond-prose">When <code>process</code> is called, it prints: <code>working</code>, then <code>second cleanup</code>, then <code>cleanup</code>. The last deferred statement runs first.</p>
             <p class="frond-prose">Defer is useful for resource cleanup:</p>
             <CodeBlock :code="deferCleanup" />
-            <p class="frond-prose">No matter how <code>readFile</code> exits — normal return, early return, or error — the channel is always closed.</p>
+            <p class="frond-prose">No matter how <code>readFile</code> exits — normal return, early <code>return</code>, or a thrown error — the file is always closed.</p>
             <div class="frond-callout">
               <p class="frond-callout-label">Tip</p>
               <p class="frond-callout-text">Deferred statements capture variable values at the time of execution, not at the time of <code>defer</code>. If a variable changes after <code>defer</code>, the deferred statement sees the new value.</p>
@@ -1027,8 +1100,18 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <h3>Escape Sequences</h3>
             <CodeBlock :code="stringsEscapes" />
             <h3>Unicode Support</h3>
-            <p class="frond-prose">Strings are Unicode-aware. Indexing returns a <code>char</code> by codepoint:</p>
+            <p class="frond-prose">Strings are Unicode-aware. Indexing returns a <code>char</code> by codepoint, while <code>bytes()</code> exposes the raw UTF-8 byte view:</p>
             <CodeBlock :code="stringsUnicode" />
+            <h3>String Helpers</h3>
+            <p class="frond-prose">One import — <code>import std.core.types</code> — brings in the <code>Str</code> namespace with the full string toolkit:</p>
+            <CodeBlock :code="stringsHelpers" />
+            <p class="frond-prose"><code>Str</code> covers <code>split</code> (Go-style: empty separator returns the whole string, empty pieces are preserved), <code>trim</code>/<code>trim_start</code>/<code>trim_end</code>, <code>contains</code>/<code>starts_with</code>/<code>ends_with</code>, <code>index_of</code> (byte offset), <code>replace</code>, <code>repeat</code>, <code>substring</code>, and <code>to_upper_ascii</code>/<code>to_lower_ascii</code>.</p>
+            <p class="frond-prose">The same import also brings a namespace per type — <code>I8</code>..<code>I128</code>, <code>U8</code>..<code>U128</code>, <code>F16</code>..<code>F128</code>, <code>Bool</code> — each with <code>parse</code> and the <code>MAX</code>/<code>MIN</code> bounds constants:</p>
+            <CodeBlock :code="stringsParse" />
+            <div class="frond-callout">
+              <p class="frond-callout-label">Tip</p>
+              <p class="frond-callout-text"><code>parse</code> returns <code>T?</code> — null means the text is malformed. Combine with <code>??</code> for a default: <code>I32.parse(text) ?? 0</code>.</p>
+            </div>
             <div class="frond-callout">
               <p class="frond-callout-label">Tip</p>
               <p class="frond-callout-text">Nullable strings work with <code>??</code>: <code>(nullableStr ?? "default")</code> provides a fallback for <code>null</code>.</p>
@@ -1040,18 +1123,45 @@ const modulesSelective = `import std.io.File.{remove as delete_file}
             <h2>Modules &amp; Imports</h2>
             <p class="frond-prose">Frond ships a standard library organized into packs. Import a pack with <code>import std.&lt;pack&gt;.&lt;module&gt;</code>:</p>
             <CodeBlock :code="modulesBasic" />
+            <p class="frond-prose">Operations that can fail return <code>Throw</code> values — handle them with <code>match</code> or <code>?</code> like any error. <code>Env.get</code> follows Go's convention: a missing key yields <code>""</code>.</p>
+            <p class="frond-prose">File-system APIs live in <code>std.io</code> and take <code>Path</code> values — the single path currency across the library. Build paths with <code>Path.from</code> / <code>.join_str</code> and render them with <code>.to_str()</code>:</p>
+            <CodeBlock :code="modulesIo" />
+            <p class="frond-prose">Random numbers come from <code>std.rand.Rand</code> — a seedable xorshift stream (not cryptographic):</p>
+            <CodeBlock :code="modulesRand" />
             <p class="frond-prose">Some names clash across packs — for example <code>File.chmod</code> and <code>Fs.chmod</code>. Import a single function under an alias to keep call sites unambiguous:</p>
             <CodeBlock :code="modulesSelective" />
+            <h3>Visibility (<code>pub</code>)</h3>
+            <p class="frond-prose">Your own modules import the same way — put <code>Counter.frond</code> next to <code>Main.frond</code> and <code>import Counter</code> (a directory with a <code>pack.frond</code> imports under its name too). Inside a module, fields, methods, and top-level items are <strong>private to the module</strong> by default; mark them <code>pub</code> to make them part of its public surface:</p>
+            <CodeBlock label="src/Counter.frond" :code="visibilityModule" />
+            <CodeBlock label="src/Main.frond" :code="visibilityClient" />
+            <p class="frond-prose">Three rules govern what crosses a module boundary:</p>
+            <ol class="frond-next-list">
+              <li><strong>Fields</strong> are module-private unless declared <code>pub</code> — <code>c.count</code> above fails from <code>Main.frond</code>.</li>
+              <li><strong>Constructors</strong> of a record with any private named field cannot be called outside its module (both <code>Counter(5)</code> and the qualified spelling) — expose a <code>pub</code> factory like <code>Counter.from</code> instead.</li>
+              <li><strong>Methods</strong> are module-private unless declared <code>pub</code> — <code>current()</code> and <code>&amp;increment()</code> above are callable only because they carry <code>pub</code>.</li>
+            </ol>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text">This is how <code>std.io.File</code> works: its descriptor field is private, files are opened through the pub <code>File.open</code> factory, and the descriptor is readable through the pub <code>fd()</code> accessor. ADT payloads (positional fields like <code>Circle(f64)</code>) follow the type's own visibility — they stay constructible and matchable across modules.</p>
+            </div>
+            <p class="frond-prose">Top-level items follow the same marker: <code>pub fun</code>, <code>pub type</code>, <code>pub val</code>, <code>pub var</code> — <code>Str.split</code>, <code>I32.MAX</code>, and <code>Rand.next</code> are all <code>pub</code> items on the library's surface. Methods implementing a trait inherit the trait's declared visibility — an override of a pub trait method is callable without re-declaring <code>pub</code>.</p>
+            <div class="frond-callout">
+              <p class="frond-callout-label">Note</p>
+              <p class="frond-callout-text"><code>@internal</code> marks standard-library implementation primitives — it is reserved: user code can neither declare nor call them.</p>
+            </div>
             <div class="frond-callout">
               <p class="frond-callout-label">Note</p>
               <p class="frond-callout-text">Console output (<code>println</code>, <code>print</code>, <code>eprintln</code>), <code>Timer</code>, and the error types (<code>Ok</code>, <code>Error</code>, <code>Throw</code>) are built in — no import needed.</p>
             </div>
             <p class="frond-prose">The standard library covers:</p>
             <ol class="frond-next-list">
-              <li><code>std.io</code> — <code>Console</code>, <code>File</code>, <code>Dir</code>, <code>Fs</code>, <code>Reader</code>, <code>Writer</code></li>
-              <li><code>std.os</code> — <code>Env</code>, <code>Info</code>, <code>Os</code>, <code>Proc</code>, <code>Tty</code></li>
-              <li><code>std.time</code> — timers and clocks (e.g. <code>Timer</code>)</li>
-              <li><code>std.net</code>, <code>std.str</code>, <code>std.iter</code>, <code>std.reflect</code> — raw sockets, string helpers, iterators, runtime reflection</li>
+              <li><code>std.core.types</code> — value-type namespaces: <code>Str</code> (string algorithms), <code>I8</code>..<code>I128</code> / <code>U8</code>..<code>U128</code>, <code>F16</code>..<code>F128</code>, <code>Bool</code> (bounds + parse)</li>
+              <li><code>std.io</code> — <code>Path</code>, <code>File</code>, <code>Dir</code>, <code>Fs</code>, <code>Buffered</code>, <code>Reader</code>, <code>Writer</code></li>
+              <li><code>std.os</code> — <code>Env</code>, <code>Info</code>, <code>Os</code>, <code>Proc</code> (args, exit, run/spawn/capture), <code>Tty</code></li>
+              <li><code>std.time</code> — <code>Duration</code>, <code>Instant</code>, <code>SystemTime</code>, <code>DateTime</code>, <code>Calendar</code>, plus <code>Timer</code> helpers (<code>sleep</code>, <code>ticker</code>, <code>timeout</code>)</li>
+              <li><code>std.math</code> — <code>Math</code> (constants, NaN/Inf helpers), <code>Power</code>, <code>Round</code>, <code>Trig</code></li>
+              <li><code>std.rand</code> — <code>Rand</code> (seedable pseudo-random stream)</li>
+              <li><code>std.net</code>, <code>std.iter</code>, <code>std.reflect</code> — raw sockets, iterators, runtime reflection</li>
             </ol>
           </section>
 

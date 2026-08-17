@@ -32,6 +32,8 @@ const cliCommands = [
   { cmd: 'frond run [-O N]', desc: 'Compile and run' },
   { cmd: 'frond run <file.fndo>', desc: 'Execute a compiled artifact' },
   { cmd: 'frond debug --stage S', desc: 'Diagnostics (tokens/ast/check/emit-c/emit-ffi/full)' },
+  { cmd: 'frond fmt', desc: 'Format source code' },
+  { cmd: 'frond lint', desc: 'Lint source code' },
   { cmd: 'frond inspect <file.fndo>', desc: 'Inspect .fndo metadata' },
 ]
 
@@ -79,7 +81,7 @@ const errorHandlingCode = `fun safeDiv(a: i32, b: i32): Throw<i32, Error> {
 }`
 
 const asyncCode = `async fun fetch(): Async<i32> {
-    Timer(1).await()
+    Timer(50_000_000).await()  // 50ms
     42
 }
 
