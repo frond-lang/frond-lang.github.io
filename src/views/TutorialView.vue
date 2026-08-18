@@ -1156,6 +1156,8 @@ fun main(): void {
             <p class="frond-prose">The standard library covers:</p>
             <ol class="frond-next-list">
               <li><code>std.core.types</code> — value-type namespaces: <code>Str</code> (string algorithms), <code>I8</code>..<code>I128</code> / <code>U8</code>..<code>U128</code>, <code>F16</code>..<code>F128</code>, <code>Bool</code> (bounds + parse)</li>
+              <li><code>std.core.fmt</code> — number formatting: <code>Fmt</code> (integer radix 2..36, <code>hex</code>/<code>oct</code>/<code>bin</code>/<code>dec</code>, <code>pad_left</code>/<code>pad_right</code>)</li>
+              <li><code>std.core.hash</code> — hash algorithm collection: <code>Hash</code> (FNV-1a, generic-key hashing, fmix64), <code>Crc32</code>, <code>Adler32</code>, <code>Xxh64</code></li>
               <li><code>std.io</code> — <code>Path</code>, <code>File</code>, <code>Dir</code>, <code>Fs</code>, <code>Buffered</code>, <code>Reader</code>, <code>Writer</code></li>
               <li><code>std.os</code> — <code>Env</code>, <code>Info</code>, <code>Os</code>, <code>Proc</code> (args, exit, run/spawn/capture), <code>Tty</code></li>
               <li><code>std.time</code> — <code>Duration</code>, <code>Instant</code>, <code>SystemTime</code>, <code>DateTime</code>, <code>Calendar</code>, plus <code>Timer</code> helpers (<code>sleep</code>, <code>ticker</code>, <code>timeout</code>)</li>
