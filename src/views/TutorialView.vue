@@ -211,11 +211,26 @@ const genericsIdentity = `fun identity<T>(x: T): T {
 
 val n = identity<i32>(42)
 val s = identity<str>("hello")`
+const memPrimitives = `import std.core.mem
+
+fun main(): void {
+    val buf: u8[] = [0, ..1024]
+    Mem.fill(buf, 7)                       // memset-fast fill
+    val src: u8[] = [1, 2, 3]
+    Mem.copy(buf, 10, src, 0, 2)           // window copy (overlaps are safe)
+
+    val grid: u8[][] = [[1, 2], [3, 4]]
+    val independent = Mem.clone(grid)      // deep copy — the only one
+    independent[0][0] = 99                 // grid[0][0] is still 1
+
+    Mem.reverse(buf)
+    println("{Mem.equal(buf, buf)} {independent[0][0]} {grid[0][0]}")
+}`
 const genericsDoubleCast = `fun double_cast<T>(x: T): T {
     x as f64 as T
 }`
-const genericsMultiple = `fun swap<T, U>(a: T, b: U): (U, T) {
-    Pair(b, a)
+const genericsMultiple = `fun first_of<T, U>(a: T, b: U): T {
+    a
 }
 
 type GList<T> = | GNil | GCons(T, GList<T>)
@@ -519,7 +534,8 @@ const errorHandlingMatch = `match lookup(-1) {
 }`
 const errorHandlingCoalesce = `val result = safeDiv(10, 0) ?? -1
 // result = -1 (safeDiv throws, ?? provides default)`
-const asyncFetch = `async fun fetch(): Async<i32> {
+const asyncFetch = `import std.time
+async fun fetch(): Async<i32> {
     Timer(50_000_000).await()  // suspend for 50ms (nanoseconds)
     42
 }`
@@ -530,7 +546,8 @@ ch.send(20)
 
 val first = ch.recv()   // 10
 val second = ch.recv()  // 20`
-const asyncChain = `async fun fetchValue(): Async<i32> {
+const asyncChain = `import std.time
+async fun fetchValue(): Async<i32> {
     Timer(50_000_000).await()  // 50ms
     42
 }
@@ -541,7 +558,8 @@ async fun process(): Async<i32> {
 }
 
 val result = process().await()  // 142`
-const asyncChannelsTypes = `val ch = channel<Point>(2)
+const asyncChannelsTypes = `import std.time
+val ch = channel<Point>(2)
 ch.send(Point(1, 2))
 ch.send(Point(3, 4))
 
@@ -1102,6 +1120,7 @@ fun main(): void {
             <h3>Unicode Support</h3>
             <p class="frond-prose">Strings are Unicode-aware. Indexing returns a <code>char</code> by codepoint, while <code>bytes()</code> exposes the raw UTF-8 byte view:</p>
             <CodeBlock :code="stringsUnicode" />
+            <p class="frond-prose"><code>str</code> is UTF-8 end to end, including the OS boundary: file names, environment variables, and subprocess arguments round-trip through Unicode exactly on every platform — non-ASCII paths and values need no special handling.</p>
             <h3>String Helpers</h3>
             <p class="frond-prose">One import — <code>import std.core.types</code> — brings in the <code>Str</code> namespace with the full string toolkit:</p>
             <CodeBlock :code="stringsHelpers" />
@@ -1151,13 +1170,14 @@ fun main(): void {
             </div>
             <div class="frond-callout">
               <p class="frond-callout-label">Note</p>
-              <p class="frond-callout-text">Console output (<code>println</code>, <code>print</code>, <code>eprintln</code>), <code>Timer</code>, and the error types (<code>Ok</code>, <code>Error</code>, <code>Throw</code>) are built in — no import needed.</p>
+              <p class="frond-callout-text">Console output (<code>println</code>, <code>print</code>, <code>eprintln</code>) and the error types (<code>Ok</code>, <code>Error</code>, <code>Throw</code>) are built in — no import needed. Everything else in <code>std</code> must be imported: an un-imported <code>std</code> name is a compile error, and an import grants the module plus its sibling modules in the same directory (Go package semantics — <code>import std.io.File</code> also exposes <code>Path</code>, <code>Dir</code>, <code>Fs</code>).</p>
             </div>
             <p class="frond-prose">The standard library covers:</p>
             <ol class="frond-next-list">
               <li><code>std.core.types</code> — value-type namespaces: <code>Str</code> (string algorithms), <code>I8</code>..<code>I128</code> / <code>U8</code>..<code>U128</code>, <code>F16</code>..<code>F128</code>, <code>Bool</code> (bounds + parse)</li>
               <li><code>std.core.fmt</code> — number formatting: <code>Fmt</code> (integer radix 2..36, <code>hex</code>/<code>oct</code>/<code>bin</code>/<code>dec</code>, <code>pad_left</code>/<code>pad_right</code>)</li>
               <li><code>std.core.hash</code> — hash algorithm collection: <code>Hash</code> (FNV-1a, generic-key hashing, fmix64), <code>Crc32</code>, <code>Adler32</code>, <code>Xxh64</code></li>
+              <li><code>std.core.mem</code> — container primitives over any <code>T[]</code>: <code>fill</code>/<code>copy</code>/<code>swap</code>/<code>reverse</code>/<code>repeat</code>/<code>equal</code>, plus <code>clone</code> (the only deep copy — plain assignment shares)</li>
               <li><code>std.io</code> — <code>Path</code>, <code>File</code>, <code>Dir</code>, <code>Fs</code>, <code>Buffered</code>, <code>Reader</code>, <code>Writer</code></li>
               <li><code>std.os</code> — <code>Env</code>, <code>Info</code>, <code>Os</code>, <code>Proc</code> (args, exit, run/spawn/capture), <code>Tty</code></li>
               <li><code>std.time</code> — <code>Duration</code>, <code>Instant</code>, <code>SystemTime</code>, <code>DateTime</code>, <code>Calendar</code>, plus <code>Timer</code> helpers (<code>sleep</code>, <code>ticker</code>, <code>timeout</code>)</li>
@@ -1165,6 +1185,14 @@ fun main(): void {
               <li><code>std.rand</code> — <code>Rand</code> (seedable pseudo-random stream)</li>
               <li><code>std.net</code>, <code>std.iter</code>, <code>std.reflect</code> — raw sockets, iterators, runtime reflection</li>
             </ol>
+          </section>
+
+          <!-- 20.5 Memory primitives -->
+          <section id="memory" class="frond-tutorial-section">
+            <h2>Memory primitives</h2>
+            <p class="frond-prose">Arrays are reference-shared: assignment, element reads, and slices all alias the same storage. <code>std.core.mem</code> gives you container-wide primitives, and <code>Mem.clone</code> is the only deep copy in the language:</p>
+            <CodeBlock :code="memPrimitives" />
+            <p class="frond-prose">Bounds are checked — an out-of-range <code>copy</code> or <code>swap</code> panics rather than corrupting memory. <code>u8[]</code> buffers take a libc fast path (<code>memset</code>/<code>memmove</code>/<code>memcmp</code>); every other element type falls back to a generic loop with identical semantics.</p>
           </section>
 
           <!-- 21. Next Steps -->
